@@ -1,8 +1,82 @@
 <svg width="700" height="1100" viewBox="0 0 700 1100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="700" height="1100" fill="#F7FAF9"/>
-  <path d="M374 92C426 110 471 160 495 214C511 248 521 297 531 339C545 395 558 437 566 479C575 527 575 576 561 624C550 664 525 698 497 726C470 753 441 780 413 811C384 843 360 879 348 918C335 961 319 999 288 1012C252 1027 207 1013 181 979C152 940 156 887 156 846C155 804 145 756 127 718C107 678 74 641 66 592C58 545 76 498 104 458C131 420 170 390 193 352C214 316 222 269 243 230C264 190 300 156 339 126C350 117 362 107 374 92Z" fill="#D6E8E3" stroke="#7AA79A" stroke-width="8"/>
-  <path d="M246 278C278 267 319 272 347 287" stroke="#94B8AD" stroke-width="6" stroke-linecap="round"/>
-  <path d="M189 522C232 545 276 560 322 559" stroke="#94B8AD" stroke-width="6" stroke-linecap="round"/>
-  <path d="M284 705C328 727 370 746 419 748" stroke="#94B8AD" stroke-width="6" stroke-linecap="round"/>
-  <ellipse cx="224" cy="1012" rx="64" ry="38" fill="#D6E8E3" stroke="#7AA79A" stroke-width="8"/>
+  <defs>
+    <linearGradient id="sea" x1="60" y1="80" x2="640" y2="1020" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EFF7FA"/>
+      <stop offset="1" stop-color="#E3F1F5"/>
+    </linearGradient>
+    <linearGradient id="land" x1="214" y1="120" x2="470" y2="935" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E8F4EF"/>
+      <stop offset="1" stop-color="#D2E8DE"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="700" height="1100" rx="32" fill="url(#sea)"/>
+
+  <path
+    d="M337 94
+    C374 95 407 111 433 137
+    C454 157 468 189 482 223
+    C496 259 517 285 531 319
+    C546 356 553 389 549 427
+    C546 457 554 485 556 516
+    C559 556 551 593 537 625
+    C522 659 507 686 486 714
+    C464 742 437 770 420 802
+    C401 838 386 877 369 912
+    C354 944 330 968 302 977
+    C273 986 239 977 214 953
+    C190 929 183 897 181 861
+    C179 827 180 793 165 761
+    C151 731 128 703 117 668
+    C105 629 107 592 115 558
+    C123 524 129 493 126 460
+    C122 420 127 387 143 353
+    C158 321 182 299 201 271
+    C224 237 229 203 249 172
+    C271 138 302 116 337 94Z"
+    fill="url(#land)"
+    stroke="#5E8F80"
+    stroke-width="8"
+    stroke-linejoin="round"
+  />
+
+  <path
+    d="M432 160
+    C451 183 463 213 474 244
+    C486 279 503 304 517 333
+    C530 362 536 395 534 426"
+    stroke="#8AAFA3"
+    stroke-width="5"
+    stroke-linecap="round"
+  />
+  <path
+    d="M198 324
+    C229 342 259 359 291 374
+    C327 390 361 397 395 400"
+    stroke="#9DBCB1"
+    stroke-width="5"
+    stroke-linecap="round"
+  />
+  <path
+    d="M165 556
+    C198 575 231 590 266 601
+    C302 612 341 615 376 608"
+    stroke="#9DBCB1"
+    stroke-width="5"
+    stroke-linecap="round"
+  />
+  <path
+    d="M203 760
+    C240 777 277 786 313 786
+    C350 786 383 778 415 765"
+    stroke="#9DBCB1"
+    stroke-width="5"
+    stroke-linecap="round"
+  />
+
+  <ellipse cx="238" cy="1010" rx="72" ry="38" fill="url(#land)" stroke="#5E8F80" stroke-width="8"/>
+  <ellipse cx="548" cy="316" rx="15" ry="10" fill="url(#land)" stroke="#6D9B8E" stroke-width="4"/>
+  <ellipse cx="505" cy="860" rx="10" ry="7" fill="url(#land)" stroke="#6D9B8E" stroke-width="3"/>
+  <ellipse cx="130" cy="640" rx="8" ry="6" fill="url(#land)" stroke="#6D9B8E" stroke-width="3"/>
 </svg>
+
