@@ -18,7 +18,7 @@ export default async function DramaPage({
   const dramaVisuals = await Promise.all(
     dramaItems.map(async (drama) => ({
       title: drama.title,
-      photo: await fetchUnsplashPhoto(drama.visualQuery)
+      photo: await fetchUnsplashPhoto(drama.visualQuery).catch(() => null)
     }))
   );
   const visualByTitle = Object.fromEntries(
