@@ -91,13 +91,32 @@ Implemented server-side in `app/api/recommend` and `lib/recommendationEngine/eng
 - Restaurants page provides Google Maps search links only
 - All descriptions are original text
 
-## Cloudflare Deployment Notes
+## Cloudflare Deployment (Workers Builds)
 
-This project avoids Node-only APIs in app routes and uses Edge-compatible `fetch` patterns.
+This repository is configured for Cloudflare Workers deployment using OpenNext.
 
-Typical deployment targets:
-- Cloudflare Pages with Next.js support
-- Any Edge runtime compatible with Next.js App Router
+Required files:
+- `wrangler.toml`
+- `open-next.config.ts`
+
+Recommended Cloudflare build settings:
+
+1. Build command:
+```bash
+npm run build
+```
+
+2. Deploy command:
+```bash
+npm run deploy
+```
+
+3. Environment variables / secrets:
+- `UNSPLASH_ACCESS_KEY` (required for image proxy route)
+
+Notes:
+- Do not use `npx wrangler deploy` directly unless OpenNext worker assets are already generated.
+- OpenNext build is best run in Linux (Cloudflare CI environment is Linux).
 
 ## GitHub
 
