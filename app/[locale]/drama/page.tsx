@@ -1,11 +1,34 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { dramaItems } from "@/lib/data/dramas";
 import { citiesBySlug } from "@/lib/data/cities";
 import { isLocale } from "@/lib/i18n";
+import { siteConfig, supportedLocales } from "@/lib/site";
 import { fetchUnsplashPhoto } from "@/lib/unsplash";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+
+  return {
+    title: "K-Drama Filming Location Guide",
+    description:
+      "Browse filming cities by popular K-dramas and jump to city guides and map searches.",
+    alternates: {
+      canonical: `/${locale}/drama`,
+      languages: Object.fromEntries(
+        supportedLocales.map((item) => [item, `${siteConfig.siteUrl}/${item}/drama`])
+      )
+    }
+  };
+}
 
 export default async function DramaPage({
   params

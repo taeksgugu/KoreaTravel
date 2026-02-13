@@ -2,10 +2,28 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { LocaleNav } from "@/components/LocaleNav";
 import { isLocale, locales } from "@/lib/i18n";
+import { siteConfig, supportedLocales } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "KoreaTravel"
-};
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) {
+    return {};
+  }
+
+  return {
+    title: "KoreaTravel",
+    alternates: {
+      canonical: `/${locale}`,
+      languages: Object.fromEntries(
+        supportedLocales.map((item) => [item, `${siteConfig.siteUrl}/${item}`])
+      )
+    }
+  };
+}
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));

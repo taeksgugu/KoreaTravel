@@ -1,8 +1,31 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AdSenseUnit } from "@/components/AdSenseUnit";
 import { adsenseSlots } from "@/lib/adsense";
 import { isLocale, t } from "@/lib/i18n";
+import { siteConfig, supportedLocales } from "@/lib/site";
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+
+  return {
+    title: "Korea Travel Personality Quiz and City Recommendations",
+    description:
+      "Discover your best-fit Korean destinations with a travel personality quiz, trip details, and map-based results.",
+    alternates: {
+      canonical: `/${locale}`,
+      languages: Object.fromEntries(
+        supportedLocales.map((item) => [item, `${siteConfig.siteUrl}/${item}`])
+      )
+    }
+  };
+}
 
 export default async function LocaleHome({
   params
@@ -15,9 +38,26 @@ export default async function LocaleHome({
   }
 
   const text = t(locale);
+  const webSiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "KoreaTravel",
+    url: `${siteConfig.siteUrl}/${locale}`,
+    inLanguage: locale,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteConfig.siteUrl}/${locale}/restaurants`,
+      "query-input": "required name=search_term_string"
+    }
+  };
 
   return (
     <div className="space-y-6">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
+      />
       <section className="grid gap-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm lg:grid-cols-[1.1fr_0.9fr] lg:p-12">
         <div className="space-y-5">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">K-Travel Type</p>

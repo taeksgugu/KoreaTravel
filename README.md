@@ -56,7 +56,8 @@ Set:
 
 ```env
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
-NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-xxxxxxxxxxxxxxxx
+NEXT_PUBLIC_SITE_URL=https://visitkoreaguide.org
+NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-3946429838788366
 NEXT_PUBLIC_ADSENSE_SLOT_HOME=1234567890
 NEXT_PUBLIC_ADSENSE_SLOT_RESULT=2345678901
 NEXT_PUBLIC_ADSENSE_SLOT_CITY=3456789012
@@ -94,6 +95,16 @@ Implemented server-side in `app/api/recommend` and `lib/recommendationEngine/eng
 - K-Drama page uses text and links only (no copyrighted screenshots)
 - Restaurants page provides Google Maps search links only
 - All descriptions are original text
+
+## SEO Baseline
+
+The project includes SEO essentials aligned with Google's starter guidance:
+- Clear page titles and page descriptions for key routes
+- Canonical and alternate-language metadata for locale routes
+- `robots.txt` via `app/robots.ts`
+- `sitemap.xml` via `app/sitemap.ts`
+- Structured data (JSON-LD `WebSite`) on locale homepage
+- Crawl-friendly internal links and semantic heading structure
 
 ## Google AdSense
 

@@ -1,9 +1,37 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AdSenseUnit } from "@/components/AdSenseUnit";
 import { adsenseSlots } from "@/lib/adsense";
 import { citiesBySlug } from "@/lib/data/cities";
 import { isLocale } from "@/lib/i18n";
+import { siteConfig, supportedLocales } from "@/lib/site";
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  if (!isLocale(locale)) return {};
+
+  const city = citiesBySlug[slug as keyof typeof citiesBySlug];
+  if (!city) return {};
+
+  return {
+    title: `${city.nameEn} Travel Guide`,
+    description: city.summary,
+    alternates: {
+      canonical: `/${locale}/city/${city.slug}`,
+      languages: Object.fromEntries(
+        supportedLocales.map((item) => [
+          item,
+          `${siteConfig.siteUrl}/${item}/city/${city.slug}`
+        ])
+      )
+    }
+  };
+}
 
 export default async function CityPage({
   params

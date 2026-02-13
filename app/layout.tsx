@@ -1,10 +1,35 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
+import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "KoreaTravel",
-  description: "Travel personality quiz and destination guide for Korea",
+  metadataBase: new URL(siteConfig.siteUrl),
+  title: {
+    default: "KoreaTravel",
+    template: "%s | KoreaTravel"
+  },
+  description: siteConfig.description,
+  applicationName: siteConfig.name,
+  keywords: [
+    "Korea travel",
+    "Korea itinerary",
+    "Korea trip planner",
+    "Korea city guide",
+    "K-Travel Type"
+  ],
+  openGraph: {
+    type: "website",
+    url: siteConfig.siteUrl,
+    title: siteConfig.name,
+    description: siteConfig.description,
+    siteName: siteConfig.name
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.name,
+    description: siteConfig.description
+  },
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",
