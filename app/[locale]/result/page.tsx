@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { AdSenseUnit } from "@/components/AdSenseUnit";
 import { KoreaMap } from "@/components/KoreaMap";
+import { adsenseSlots } from "@/lib/adsense";
 import { citiesBySlug } from "@/lib/data/cities";
 import type { RecommendationInput, RecommendationResult, CitySlug, UnsplashPhoto } from "@/lib/data/types";
 
@@ -101,70 +103,73 @@ export default function ResultPage() {
   }
 
   return (
-    <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-      <div className="space-y-4">
-        <h1 className="text-3xl font-semibold text-slate-900">Your Top 3 Korea Cities</h1>
-        {results.map((result, index) => {
-          const city = citiesBySlug[result.slug];
-          return (
-            <article
-              key={result.slug}
-              onMouseEnter={() => setHoveredSlug(result.slug)}
-              className={`rounded-2xl border bg-white p-5 shadow-sm transition ${
-                hoveredSlug === result.slug ? "border-emerald-700" : "border-slate-200"
-              }`}
-            >
-              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.15em] text-emerald-700">Rank #{index + 1}</p>
-              <h2 className="text-xl font-semibold text-slate-900">{city.nameEn} ({city.nameKo})</h2>
-              <p className="mt-2 text-sm text-slate-600">Score: {result.score}</p>
-              <p className="mt-2 text-sm text-slate-700">Top tags: {result.reason.topTags.join(", ")}</p>
-              <p className="mt-1 text-sm text-slate-700">Synergy: {result.reason.synergies.length ? result.reason.synergies.join(" | ") : "None"}</p>
-              <p className="mt-1 text-sm text-slate-700">{result.reason.englishNote}</p>
-              <p className="mt-1 text-sm text-slate-700">{result.reason.accessNote}</p>
-            </article>
-          );
-        })}
-      </div>
-
-      <div className="space-y-4">
-        <KoreaMap
-          pins={pins}
-          activeSlug={hoveredSlug ?? undefined}
-          onHover={setHoveredSlug}
-          onSelect={(slug) => router.push(`/${locale}/city/${slug}`)}
-        />
-
-        {previewCity && (
-          <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900">Preview: {previewCity.nameEn}</h3>
-            <p className="mt-1 text-sm text-slate-700">{previewCity.summary}</p>
-            <p className="mt-2 text-sm text-slate-600">Tags: {previewCity.tags.slice(0, 3).join(", ")}</p>
-
-            <div className="mt-3 grid gap-3 md:grid-cols-2">
-              {previewPhotos.slice(0, 2).map((photo) => (
-                <figure key={photo.url} className="space-y-1">
-                  <img src={photo.url} alt={previewCity.nameEn} className="h-32 w-full rounded-xl object-cover" />
-                  <figcaption className="text-xs text-slate-500">
-                    Photo by{" "}
-                    <a href={photo.photographerLink} target="_blank" rel="noreferrer" className="underline">
-                      {photo.photographer}
-                    </a>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-
-            <div className="mt-4">
-              <Link
-                href={`/${locale}/city/${previewCity.slug}`}
-                className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800"
+    <div className="space-y-6">
+      <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="space-y-4">
+          <h1 className="text-3xl font-semibold text-slate-900">Your Top 3 Korea Cities</h1>
+          {results.map((result, index) => {
+            const city = citiesBySlug[result.slug];
+            return (
+              <article
+                key={result.slug}
+                onMouseEnter={() => setHoveredSlug(result.slug)}
+                className={`rounded-2xl border bg-white p-5 shadow-sm transition ${
+                  hoveredSlug === result.slug ? "border-emerald-700" : "border-slate-200"
+                }`}
               >
-                View Details
-              </Link>
-            </div>
-          </article>
-        )}
-      </div>
-    </section>
+                <p className="mb-2 text-sm font-semibold uppercase tracking-[0.15em] text-emerald-700">Rank #{index + 1}</p>
+                <h2 className="text-xl font-semibold text-slate-900">{city.nameEn} ({city.nameKo})</h2>
+                <p className="mt-2 text-sm text-slate-600">Score: {result.score}</p>
+                <p className="mt-2 text-sm text-slate-700">Top tags: {result.reason.topTags.join(", ")}</p>
+                <p className="mt-1 text-sm text-slate-700">Synergy: {result.reason.synergies.length ? result.reason.synergies.join(" | ") : "None"}</p>
+                <p className="mt-1 text-sm text-slate-700">{result.reason.englishNote}</p>
+                <p className="mt-1 text-sm text-slate-700">{result.reason.accessNote}</p>
+              </article>
+            );
+          })}
+        </div>
+
+        <div className="space-y-4">
+          <KoreaMap
+            pins={pins}
+            activeSlug={hoveredSlug ?? undefined}
+            onHover={setHoveredSlug}
+            onSelect={(slug) => router.push(`/${locale}/city/${slug}`)}
+          />
+
+          {previewCity && (
+            <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <h3 className="text-lg font-semibold text-slate-900">Preview: {previewCity.nameEn}</h3>
+              <p className="mt-1 text-sm text-slate-700">{previewCity.summary}</p>
+              <p className="mt-2 text-sm text-slate-600">Tags: {previewCity.tags.slice(0, 3).join(", ")}</p>
+
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                {previewPhotos.slice(0, 2).map((photo) => (
+                  <figure key={photo.url} className="space-y-1">
+                    <img src={photo.url} alt={previewCity.nameEn} className="h-32 w-full rounded-xl object-cover" />
+                    <figcaption className="text-xs text-slate-500">
+                      Photo by{" "}
+                      <a href={photo.photographerLink} target="_blank" rel="noreferrer" className="underline">
+                        {photo.photographer}
+                      </a>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+
+              <div className="mt-4">
+                <Link
+                  href={`/${locale}/city/${previewCity.slug}`}
+                  className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800"
+                >
+                  View Details
+                </Link>
+              </div>
+            </article>
+          )}
+        </div>
+      </section>
+      <AdSenseUnit slot={adsenseSlots.result} />
+    </div>
   );
 }

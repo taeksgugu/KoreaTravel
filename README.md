@@ -56,6 +56,10 @@ Set:
 
 ```env
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
+NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-xxxxxxxxxxxxxxxx
+NEXT_PUBLIC_ADSENSE_SLOT_HOME=1234567890
+NEXT_PUBLIC_ADSENSE_SLOT_RESULT=2345678901
+NEXT_PUBLIC_ADSENSE_SLOT_CITY=3456789012
 ```
 
 3. Run development server:
@@ -90,6 +94,20 @@ Implemented server-side in `app/api/recommend` and `lib/recommendationEngine/eng
 - K-Drama page uses text and links only (no copyrighted screenshots)
 - Restaurants page provides Google Maps search links only
 - All descriptions are original text
+
+## Google AdSense
+
+AdSense integration is enabled with:
+- Global AdSense script + account meta tag in `app/layout.tsx`
+- Reusable ad unit component in `components/AdSenseUnit.tsx`
+- Placement in high-intent pages only (home/result/city) to avoid ad-heavy layouts
+- Explicit `Sponsored` label for ad blocks
+- `public/ads.txt` placeholder file (replace `pub-xxxxxxxxxxxxxxxx` with your publisher ID)
+
+Quality policy choices in this project:
+- Keep primary travel content as the main focus, ads are secondary
+- Avoid deceptive ad placement near critical navigation/actions
+- Keep ad count moderate per page and preserve readability
 
 ## Cloudflare Deployment (Workers Builds)
 
