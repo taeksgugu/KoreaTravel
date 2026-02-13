@@ -121,7 +121,7 @@ Recommended Cloudflare build settings:
 
 1. Build command:
 ```bash
-npm run build
+npm run build:cf
 ```
 
 2. Deploy command:
@@ -133,7 +133,8 @@ npm run deploy
 - `UNSPLASH_ACCESS_KEY` (required for image proxy route)
 
 Notes:
-- Do not use `npx wrangler deploy` directly unless OpenNext worker assets are already generated.
+- `npm run build` is plain Next.js build for local verification.
+- Use `npm run build:cf` before `wrangler deploy` so `.open-next/worker.js` is generated.
 - OpenNext build is best run in Linux (Cloudflare CI environment is Linux).
 
 ## GitHub
