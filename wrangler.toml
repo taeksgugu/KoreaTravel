@@ -2,6 +2,9 @@
 main = ".open-next/worker.js"
 compatibility_date = "2026-02-13"
 compatibility_flags = ["nodejs_compat"]
+routes = [
+  { pattern = "visitkoreaguide.org/*", custom_domain = true }
+]
 
 [assets]
 directory = ".open-next/assets"
