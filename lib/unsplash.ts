@@ -1,4 +1,5 @@
 import type { UnsplashPhoto } from "@/lib/data/types";
+import { getRuntimeEnv } from "@/lib/runtimeEnv";
 
 type UnsplashSearchResponse = {
   results?: Array<{
@@ -11,7 +12,7 @@ type UnsplashSearchResponse = {
 };
 
 export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto | null> {
-  const key = process.env.UNSPLASH_ACCESS_KEY;
+  const key = getRuntimeEnv("UNSPLASH_ACCESS_KEY");
   if (!key || !query.trim()) {
     return null;
   }

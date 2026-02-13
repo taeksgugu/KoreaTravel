@@ -1,4 +1,5 @@
 import type { UnsplashPhoto } from "@/lib/data/types";
+import { getRuntimeEnv } from "@/lib/runtimeEnv";
 
 type UnsplashSearchResponse = {
   results?: Array<{
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "query is required" }, { status: 400 });
   }
 
-  const key = process.env.UNSPLASH_ACCESS_KEY;
+  const key = getRuntimeEnv("UNSPLASH_ACCESS_KEY");
   if (!key) {
     return Response.json({ photos: [] as UnsplashPhoto[], warning: "UNSPLASH_ACCESS_KEY is not configured." });
   }
