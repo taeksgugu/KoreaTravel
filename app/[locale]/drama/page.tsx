@@ -5,6 +5,8 @@ import { citiesBySlug } from "@/lib/data/cities";
 import { isLocale } from "@/lib/i18n";
 import { fetchUnsplashPhoto } from "@/lib/unsplash";
 
+export const dynamic = "force-dynamic";
+
 export default async function DramaPage({
   params
 }: {
