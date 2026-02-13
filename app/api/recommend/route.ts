@@ -1,8 +1,6 @@
 import { recommendCities } from "@/lib/recommendationEngine/engine";
 import type { RecommendationInput } from "@/lib/data/types";
 
-export const runtime = "edge";
-
 function isValidPayload(body: unknown): body is RecommendationInput {
   if (!body || typeof body !== "object") return false;
 

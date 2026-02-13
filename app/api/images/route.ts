@@ -1,7 +1,5 @@
 import type { UnsplashPhoto } from "@/lib/data/types";
 
-export const runtime = "edge";
-
 type UnsplashSearchResponse = {
   results?: Array<{
     urls?: { regular?: string };
