@@ -4,7 +4,12 @@ import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "KoreaTravel",
-  description: "Travel personality quiz and destination guide for Korea"
+  description: "Travel personality quiz and destination guide for Korea",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/apple-icon.svg"
+  }
 };
 
 export default function RootLayout({
