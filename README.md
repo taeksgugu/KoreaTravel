@@ -123,6 +123,7 @@ Recommended Cloudflare build settings:
 ```bash
 npm run build:cf
 ```
+`build:cf` clears `.next` and `.open-next` first to avoid stale cache artifacts in CI.
 
 2. Deploy command:
 ```bash
