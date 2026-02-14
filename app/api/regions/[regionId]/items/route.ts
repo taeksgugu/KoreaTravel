@@ -4,7 +4,7 @@ import { presetById } from "@/lib/presets";
 import { regionById } from "@/lib/regions";
 import { subregionById } from "@/lib/subregions";
 import { fetchRegionItems } from "@/lib/tourapi";
-import type { Category, RegionItemsResponse } from "@/lib/types";
+import type { Category, EventStatus, RegionItemsResponse } from "@/lib/types";
 
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const validCategories: Category[] = ["attractions", "food", "stay", "events"];
@@ -24,11 +24,15 @@ export async function GET(
   const page = Math.max(1, Number(searchParams.get("page") ?? "1"));
   const pageSize = Math.min(30, Math.max(1, Number(searchParams.get("pageSize") ?? "10")));
   const sort = searchParams.get("sort") === "title" ? "title" : "latest";
+  const eventStatus = (searchParams.get("eventStatus") ?? "all") as EventStatus;
   const presetId = searchParams.get("presetId") ?? undefined;
   const subregionId = searchParams.get("subregionId") ?? undefined;
 
   if (!validCategories.includes(category)) {
     return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+  }
+  if (!["all", "ongoing", "upcoming"].includes(eventStatus)) {
+    return NextResponse.json({ error: "Invalid eventStatus" }, { status: 400 });
   }
 
   if (presetId && !presetById[presetId]) {
@@ -45,7 +49,16 @@ export async function GET(
     }
   }
 
-  const cacheKey = [regionId, subregionId ?? "none", category, page, pageSize, sort, presetId ?? "none"].join(":");
+  const cacheKey = [
+    regionId,
+    subregionId ?? "none",
+    category,
+    page,
+    pageSize,
+    sort,
+    eventStatus,
+    presetId ?? "none"
+  ].join(":");
   const cached = getCache<RegionItemsResponse>(cacheKey);
   if (cached) {
     return NextResponse.json(cached, {
@@ -62,6 +75,7 @@ export async function GET(
     page,
     pageSize,
     sort,
+    eventStatus,
     presetId
   });
 

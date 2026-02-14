@@ -43,6 +43,8 @@ This separation allows map replacement without changing server/data panel logic.
 - Skeleton loading, error state, empty state
 - Pagination with `Load More`
 - Sorting: `Latest`, `Title`
+- Events status filter: `All`, `Ongoing`, `Upcoming`
+- Per-card quick actions: `Open in Google Maps`, `VisitKorea Search`
 
 3. Server API
 - Endpoint:
@@ -58,14 +60,14 @@ This separation allows map replacement without changing server/data panel logic.
 - Supports:
   - Seoul, Busan, Jeju, Incheon, Chuncheon, Gangneung, Sokcho, Jeonju, Gyeongju,
     Namhae, Damyang, Daegu, Andong, Yeosu, Boryeong
-- Current strategy: preset applies region + keyword-focused query (MVP without full sigungu polygons)
- - For non-metro city presets (e.g., Chuncheon, Gangneung), preset also selects drill-down subregion
+- Current strategy: preset applies region + keyword-focused query and selects connected subregion when defined
 
 ## Drill-down Strategy
 
 Current implementation includes practical drill-down:
 - Province click selects `regionId`
-- Subregion overlays (for requested city/county targets) can be clicked to select `subregionId`
+- Subregion overlays use extracted real sigungu geometry for requested targets (`data/regions/sigungu-selected.geojson`)
+- Subregion polygons can be clicked to select `subregionId`
 - Content API receives both and applies keyword + area/sigungu query when available
 
 ## Environment Variables
@@ -109,7 +111,9 @@ npm run build:cf
 
 ## GeoJSON Data Source / Update Guide
 
-MVP uses `sido`-level polygons in `data/regions/sido.geojson`.
+MVP uses:
+- `data/regions/sido.geojson` for province-level metadata
+- `data/regions/sigungu-selected.geojson` for selected city/county drill-down polygons
 
 For production-quality boundaries:
 1. Obtain official SHP/GeoJSON boundary data

@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { Category, NormalizedItem, RegionItemsResponse } from "@/lib/types";
+import type { Category, EventStatus, NormalizedItem, RegionItemsResponse } from "@/lib/types";
 
 const tabs: { id: Category; label: string }[] = [
   { id: "attractions", label: "Attractions" },
@@ -32,11 +32,12 @@ export function RegionContentPanel({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [sort, setSort] = useState<"latest" | "title">("latest");
+  const [eventStatus, setEventStatus] = useState<EventStatus>("all");
 
   useEffect(() => {
     setPage(1);
     setItems([]);
-  }, [regionId, category, sort, presetId, subregionId]);
+  }, [regionId, category, sort, eventStatus, presetId, subregionId]);
 
   useEffect(() => {
     let ignore = false;
@@ -51,6 +52,7 @@ export function RegionContentPanel({
         pageSize: "10",
         sort
       });
+      if (category === "events") query.set("eventStatus", eventStatus);
 
       if (presetId) query.set("presetId", presetId);
       if (subregionId) query.set("subregionId", subregionId);
@@ -79,7 +81,7 @@ export function RegionContentPanel({
     return () => {
       ignore = true;
     };
-  }, [category, page, presetId, regionId, sort, subregionId]);
+  }, [category, eventStatus, page, presetId, regionId, sort, subregionId]);
 
   const headerTitle = useMemo(() => {
     const base = subregionName ? `${regionName} / ${subregionName}` : regionName;
@@ -106,6 +108,23 @@ export function RegionContentPanel({
           </select>
         </label>
       </div>
+
+      {category === "events" ? (
+        <div className="mt-3">
+          <label className="text-sm text-slate-700">
+            Event status
+            <select
+              value={eventStatus}
+              onChange={(event) => setEventStatus(event.target.value as EventStatus)}
+              className="ml-2 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm"
+            >
+              <option value="all">All</option>
+              <option value="ongoing">Ongoing</option>
+              <option value="upcoming">Upcoming</option>
+            </select>
+          </label>
+        </div>
+      ) : null}
 
       <div className="mt-4 flex flex-wrap gap-2">
         {tabs.map((tab) => {
@@ -155,6 +174,24 @@ export function RegionContentPanel({
             <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
               <span>{item.category}</span>
               <span>{item.source}</span>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <a
+                href={`https://www.google.com/maps/search/${encodeURIComponent(item.addr ? `${item.title} ${item.addr}` : item.title)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
+              >
+                Open in Google Maps
+              </a>
+              <a
+                href={`https://english.visitkorea.or.kr/svc/search/searchList.do?query=${encodeURIComponent(item.title)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
+              >
+                VisitKorea Search
+              </a>
             </div>
           </article>
         ))}

@@ -1,6 +1,7 @@
 ﻿export type Locale = "en" | "ko";
 
 export type Category = "attractions" | "food" | "stay" | "events";
+export type EventStatus = "all" | "ongoing" | "upcoming";
 
 export type RegionFeatureProperties = {
   region_id: string;

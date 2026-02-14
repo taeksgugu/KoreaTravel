@@ -14,6 +14,8 @@ export function createMockItems(regionLabel: string, category: Category, page: n
 
   const items: NormalizedItem[] = Array.from({ length: Math.max(0, end - start) }).map((_, idx) => {
     const order = start + idx + 1;
+    const eventStart = `2026-0${((order % 6) + 3).toString()}-0${((order % 8) + 1).toString()}`;
+    const eventEnd = `2026-0${((order % 6) + 3).toString()}-1${((order % 8) + 1).toString()}`;
     return {
       id: `mock-${regionLabel}-${category}-${order}`,
       title: `${regionLabel} ${categoryLabel[category]} ${order}`,
@@ -24,8 +26,8 @@ export function createMockItems(regionLabel: string, category: Category, page: n
       firstImage: null,
       tel: null,
       overview: `Mock content for ${regionLabel} ${category} #${order}. Configure TOUR_API_KEY to use live data.`,
-      startDate: category === "events" ? "2026-03-01" : null,
-      endDate: category === "events" ? "2026-03-07" : null,
+      startDate: category === "events" ? eventStart : null,
+      endDate: category === "events" ? eventEnd : null,
       source: "mock"
     };
   });

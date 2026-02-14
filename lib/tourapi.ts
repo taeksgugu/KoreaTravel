@@ -2,7 +2,7 @@
 import { presetById } from "./presets";
 import { regionById } from "./regions";
 import { subregionById } from "./subregions";
-import type { Category, NormalizedItem } from "./types";
+import type { Category, EventStatus, NormalizedItem } from "./types";
 
 type FetchOptions = {
   regionId: string;
@@ -12,7 +12,39 @@ type FetchOptions = {
   sort: "latest" | "title";
   presetId?: string;
   subregionId?: string;
+  eventStatus?: EventStatus;
 };
+
+function parseYmd(value: string | null): Date | null {
+  if (!value) return null;
+  if (/^\d{8}$/.test(value)) {
+    const y = Number(value.slice(0, 4));
+    const m = Number(value.slice(4, 6)) - 1;
+    const d = Number(value.slice(6, 8));
+    return new Date(y, m, d);
+  }
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function filterEventsByStatus(items: NormalizedItem[], status: EventStatus): NormalizedItem[] {
+  if (status === "all") return items;
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return items.filter((item) => {
+    const start = parseYmd(item.startDate);
+    const end = parseYmd(item.endDate);
+    if (status === "ongoing") {
+      if (!start || !end) return false;
+      return start <= today && today <= end;
+    }
+    if (status === "upcoming") {
+      if (!start) return false;
+      return start > today;
+    }
+    return true;
+  });
+}
 
 const TOUR_API_BASE = process.env.TOUR_API_BASE_URL ?? "https://apis.data.go.kr/B551011/KorService1";
 
@@ -134,12 +166,28 @@ async function fetchPublicFestival(options: FetchOptions): Promise<NormalizedIte
 export async function fetchRegionItems(options: FetchOptions): Promise<{ items: NormalizedItem[]; hasMore: boolean; source: "tourapi" | "mock" | "public-festival" }> {
   const region = regionById[options.regionId];
   if (!region) {
-    return { ...createMockItems(options.regionId, options.category, options.page, options.pageSize), source: "mock" };
+    const mock = createMockItems(options.regionId, options.category, options.page, options.pageSize);
+    return {
+      items:
+        options.category === "events"
+          ? filterEventsByStatus(mock.items, options.eventStatus ?? "all")
+          : mock.items,
+      hasMore: mock.hasMore,
+      source: "mock"
+    };
   }
 
   const tourApiKey = process.env.TOUR_API_KEY;
   if (!tourApiKey) {
-    return { ...createMockItems(region.name_en, options.category, options.page, options.pageSize), source: "mock" };
+    const mock = createMockItems(region.name_en, options.category, options.page, options.pageSize);
+    return {
+      items:
+        options.category === "events"
+          ? filterEventsByStatus(mock.items, options.eventStatus ?? "all")
+          : mock.items,
+      hasMore: mock.hasMore,
+      source: "mock"
+    };
   }
 
   const preset = options.presetId ? presetById[options.presetId] : undefined;
@@ -152,8 +200,12 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
     if (options.category === "events") {
       const festivalFallback = await fetchPublicFestival(options);
       if (festivalFallback && festivalFallback.length > 0) {
+        const filteredFestival = filterEventsByStatus(
+          festivalFallback,
+          options.eventStatus ?? "all"
+        );
         return {
-          items: festivalFallback,
+          items: filteredFestival,
           hasMore: festivalFallback.length >= options.pageSize,
           source: "public-festival"
         };
@@ -191,10 +243,22 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
     const { items, totalCount } = await callTourApi(endpoint, params);
 
     const normalized = items.map((item) => normalizeTourItem(item, options.category));
+    const filtered =
+      options.category === "events"
+        ? filterEventsByStatus(normalized, options.eventStatus ?? "all")
+        : normalized;
     const hasMore = options.page * options.pageSize < totalCount;
 
-    return { items: normalized, hasMore, source: "tourapi" };
+    return { items: filtered, hasMore, source: "tourapi" };
   } catch {
-    return { ...createMockItems(region.name_en, options.category, options.page, options.pageSize), source: "mock" };
+    const mock = createMockItems(region.name_en, options.category, options.page, options.pageSize);
+    return {
+      items:
+        options.category === "events"
+          ? filterEventsByStatus(mock.items, options.eventStatus ?? "all")
+          : mock.items,
+      hasMore: mock.hasMore,
+      source: "mock"
+    };
   }
 }
