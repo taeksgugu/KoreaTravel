@@ -86,6 +86,8 @@ function resolveTourApiKey() {
   return normalizeServiceKey(
     process.env.TOUR_API_KEY ??
       process.env.TOUR_API_SERVICE_KEY ??
+      process.env.TOURAPI_KEY ??
+      process.env.NEXT_PUBLIC_TOUR_API_KEY ??
       process.env.SERVICE_KEY ??
       process.env.SERVICEKEY
   );
