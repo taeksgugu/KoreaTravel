@@ -57,8 +57,8 @@ const TOUR_API_BASE_CANDIDATES = Array.from(
   new Set(
     [
       process.env.TOUR_API_BASE_URL,
-      "https://apis.data.go.kr/B551011/KorService1",
-      "https://apis.data.go.kr/B551011/EngService1"
+      "https://apis.data.go.kr/B551011/KorService2",
+      "https://apis.data.go.kr/B551011/EngService2"
     ].filter((value): value is string => Boolean(value))
   )
 );
@@ -75,32 +75,21 @@ function normalizeServiceKey(rawKey: string | undefined): string | undefined {
   }
 }
 
-const areaCodeByRegion: Record<string, string> = {
-  seoul: "1",
-  incheon: "2",
-  daejeon: "3",
-  daegu: "4",
-  gwangju: "5",
-  busan: "6",
-  ulsan: "7",
-  sejong: "8",
-  gyeonggi: "31",
-  gangwon: "32",
-  chungbuk: "33",
-  chungnam: "34",
-  gyeongbuk: "35",
-  gyeongnam: "36",
-  jeonbuk: "37",
-  jeonnam: "38",
-  jeju: "39"
-};
-
 const contentTypeByCategory: Record<Category, string> = {
   attractions: "12",
   food: "39",
   stay: "32",
   events: "15"
 };
+
+function resolveTourApiKey() {
+  return normalizeServiceKey(
+    process.env.TOUR_API_KEY ??
+      process.env.TOUR_API_SERVICE_KEY ??
+      process.env.SERVICE_KEY ??
+      process.env.SERVICEKEY
+  );
+}
 
 function normalizeTourItem(raw: Record<string, unknown>, category: Category): NormalizedItem {
   return {
@@ -138,7 +127,7 @@ function normalizePublicFestivalItem(raw: Record<string, unknown>): NormalizedIt
 
 async function callTourApi(endpoint: string, params: URLSearchParams) {
   const keyCandidates = Array.from(
-    new Set([params.get("serviceKey") ?? "", normalizeServiceKey(process.env.TOUR_API_KEY) ?? ""])
+    new Set([params.get("serviceKey") ?? "", resolveTourApiKey() ?? ""])
   ).filter(Boolean);
   const keyParamNames = ["serviceKey", "ServiceKey"] as const;
 
@@ -236,7 +225,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
     };
   }
 
-  const tourApiKey = normalizeServiceKey(process.env.TOUR_API_KEY);
+  const tourApiKey = resolveTourApiKey();
   if (!tourApiKey) {
     const mock = createMockItems(region.name_en, options.category, options.page, options.pageSize);
     return {
@@ -252,8 +241,10 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
 
   const preset = options.presetId ? presetById[options.presetId] : undefined;
   const subregion = options.subregionId ? subregionById[options.subregionId] : undefined;
-  const areaCode = subregion?.areaCode ?? preset?.areaCode ?? areaCodeByRegion[options.regionId];
-  const sigunguCode = subregion?.sigunguCode ?? preset?.sigunguCode;
+  const lDongRegnCd = region.admin_code;
+  const rawSignguCode = subregion?.sigunguCode ?? preset?.sigunguCode;
+  const lDongSignguCd =
+    rawSignguCode && /^\d{3}$/.test(rawSignguCode) ? rawSignguCode : undefined;
   const arrange = options.sort === "latest" ? "C" : "A";
 
   try {
@@ -273,7 +264,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
       }
     }
 
-    const endpoint = preset || subregion ? "searchKeyword1" : options.category === "events" ? "searchFestival1" : "areaBasedList1";
+    const endpoint = preset || subregion ? "searchKeyword2" : "areaBasedList2";
 
     const params = new URLSearchParams({
       serviceKey: tourApiKey,
@@ -282,20 +273,15 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
       _type: "json",
       numOfRows: String(options.pageSize),
       pageNo: String(options.page),
-      arrange
+      arrange,
+      listYN: "Y"
     });
 
-    if (areaCode) params.set("areaCode", areaCode);
-    if (sigunguCode) params.set("sigunguCode", sigunguCode);
+    if (lDongRegnCd) params.set("lDongRegnCd", lDongRegnCd);
+    if (lDongSignguCd) params.set("lDongSignguCd", lDongSignguCd);
 
-    if (endpoint === "searchKeyword1") {
+    if (endpoint === "searchKeyword2") {
       params.set("keyword", subregion?.keywordKo ?? preset?.keywordKo ?? region.name_ko);
-      params.set("contentTypeId", contentTypeByCategory[options.category]);
-    } else if (endpoint === "searchFestival1") {
-      params.set("eventStartDate", new Date().toISOString().slice(0, 10).replace(/-/g, ""));
-      if (subregion?.keywordKo || preset?.keywordKo) {
-        params.set("keyword", subregion?.keywordKo ?? preset?.keywordKo ?? "");
-      }
       params.set("contentTypeId", contentTypeByCategory[options.category]);
     } else {
       params.set("contentTypeId", contentTypeByCategory[options.category]);
@@ -310,7 +296,12 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
         : normalized;
     const hasMore = options.page * options.pageSize < totalCount;
 
-    return { items: filtered, hasMore, source: "tourapi", debug: "source:tourapi" };
+    return {
+      items: filtered,
+      hasMore,
+      source: "tourapi",
+      debug: `source:tourapi:${endpoint}:${lDongRegnCd ?? "none"}:${lDongSignguCd ?? "none"}`
+    };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message.slice(0, 220) : "unknown_tourapi_error";
