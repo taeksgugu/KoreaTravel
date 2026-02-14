@@ -55,7 +55,7 @@ export default async function DramaPage({
       <header>
         <h1 className="text-3xl font-semibold text-slate-900">K-Drama Filming City Guide</h1>
         <p className="mt-2 text-slate-700">
-          No copyrighted screenshots are used. Visuals below are Unsplash mood photos with credits.
+          No copyrighted screenshots are used. Visuals below are sourced from Korea Tourism Organization photo data.
         </p>
       </header>
 
@@ -71,7 +71,7 @@ export default async function DramaPage({
                 />
               ) : (
                 <div className="flex h-40 items-center justify-center rounded-xl bg-slate-100 text-sm text-slate-500">
-                  Image available after Unsplash key setup
+                  Image available after Tour Photo API key setup
                 </div>
               )}
               {visualByTitle[drama.title]?.photographer ? (

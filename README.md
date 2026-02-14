@@ -77,6 +77,7 @@ Create `.env.local` from `.env.example`.
 Required:
 - `NEXT_PUBLIC_MAPBOX_TOKEN`
 - `TOUR_API_KEY`
+- `TOUR_PHOTO_API_KEY` (or reuse `TOUR_API_KEY` if photo API is approved on same key)
 
 Optional:
 - `PUBLIC_DATA_API_KEY`

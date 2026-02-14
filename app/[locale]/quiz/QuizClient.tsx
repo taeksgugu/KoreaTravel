@@ -101,7 +101,7 @@ export function QuizClient({ locale }: { locale: string }) {
                 {preview ? (
                   <img src={preview.url} alt={option.label} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-sm text-slate-500">Loading Unsplash image...</div>
+                  <div className="flex h-full items-center justify-center text-sm text-slate-500">Loading Korea tourism photo...</div>
                 )}
               </div>
               <div className="space-y-2 p-4">
