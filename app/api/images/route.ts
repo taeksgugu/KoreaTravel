@@ -106,6 +106,37 @@ function parseItems(data: TourPhotoResponse): TourPhotoItem[] {
   return rawItem ? [rawItem] : [];
 }
 
+async function fetchUnsplashFallback(query: string, count: number): Promise<UnsplashPhoto[]> {
+  const accessKey = getRuntimeEnv("UNSPLASH_ACCESS_KEY")?.trim();
+  if (!accessKey) return [];
+
+  const endpoint = new URL("https://api.unsplash.com/search/photos");
+  endpoint.searchParams.set("query", query);
+  endpoint.searchParams.set("per_page", String(Math.max(1, Math.min(count, 10))));
+  endpoint.searchParams.set("orientation", "landscape");
+  endpoint.searchParams.set("content_filter", "high");
+  endpoint.searchParams.set("client_id", accessKey);
+
+  const response = await fetch(endpoint.toString(), { next: { revalidate: 3600 } });
+  if (!response.ok) return [];
+
+  const json = (await response.json()) as {
+    results?: Array<{
+      urls?: { regular?: string };
+      user?: { name?: string; links?: { html?: string } };
+    }>;
+  };
+
+  return (json.results ?? [])
+    .map((item) => ({
+      url: item.urls?.regular ?? "",
+      photographer: item.user?.name ?? "Unsplash",
+      photographerLink: item.user?.links?.html ?? "https://unsplash.com"
+    }))
+    .filter((item) => item.url.length > 0)
+    .slice(0, count);
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("query")?.trim();
@@ -216,6 +247,22 @@ export async function GET(request: Request) {
   }
 
   if (!items.length) {
+    const unsplashPhotos = await fetchUnsplashFallback(query, count);
+    if (unsplashPhotos.length > 0) {
+      return Response.json(
+        {
+          photos: unsplashPhotos,
+          source: "unsplash-fallback",
+          debug: `tour_photo_empty:${lastDebug}`
+        },
+        {
+          headers: {
+            "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400"
+          }
+        }
+      );
+    }
+
     return Response.json(
       {
         error: "Failed to load tourism photos",

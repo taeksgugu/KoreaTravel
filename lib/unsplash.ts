@@ -106,6 +106,37 @@ function parseItems(data: TourPhotoResponse): TourPhotoItem[] {
   return rawItem ? [rawItem] : [];
 }
 
+async function fetchUnsplashFallbackOne(query: string): Promise<UnsplashPhoto | null> {
+  const accessKey = getRuntimeEnv("UNSPLASH_ACCESS_KEY")?.trim();
+  if (!accessKey) return null;
+
+  const endpoint = new URL("https://api.unsplash.com/search/photos");
+  endpoint.searchParams.set("query", query);
+  endpoint.searchParams.set("per_page", "10");
+  endpoint.searchParams.set("orientation", "landscape");
+  endpoint.searchParams.set("content_filter", "high");
+  endpoint.searchParams.set("client_id", accessKey);
+
+  const response = await fetch(endpoint.toString(), { next: { revalidate: 3600 } });
+  if (!response.ok) return null;
+
+  const json = (await response.json()) as {
+    results?: Array<{
+      urls?: { regular?: string };
+      user?: { name?: string; links?: { html?: string } };
+    }>;
+  };
+
+  const item = (json.results ?? []).find((photo) => (photo.urls?.regular ?? "").length > 0);
+  if (!item?.urls?.regular) return null;
+
+  return {
+    url: item.urls.regular,
+    photographer: item.user?.name ?? "Unsplash",
+    photographerLink: item.user?.links?.html ?? "https://unsplash.com"
+  };
+}
+
 export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto | null> {
   const rawKey = getRuntimeEnv("TOUR_PHOTO_API_KEY") ?? getRuntimeEnv("TOUR_API_KEY");
   const key = rawKey ? normalizeServiceKey(rawKey.trim()) : "";
@@ -205,7 +236,7 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
     );
     const item = withImage.length ? withImage[queryHash % withImage.length] : undefined;
     if (!item) {
-      return null;
+      return fetchUnsplashFallbackOne(query);
     }
 
     return {
@@ -214,6 +245,6 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
       photographerLink: "https://phoko.visitkorea.or.kr"
     };
   } catch {
-    return null;
+    return fetchUnsplashFallbackOne(query);
   }
 }
