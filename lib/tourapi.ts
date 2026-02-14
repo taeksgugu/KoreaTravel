@@ -82,6 +82,13 @@ const contentTypeByCategory: Record<Category, string> = {
   events: "15"
 };
 
+const contentTypeFallbackByCategory: Record<Category, string[]> = {
+  attractions: ["12", "76"],
+  food: ["39", "82"],
+  stay: ["32", "80"],
+  events: ["15", "85"]
+};
+
 const areaCodeByRegion: Record<string, string> = {
   seoul: "1",
   incheon: "2",
@@ -317,12 +324,30 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
 
     if (endpoint === "searchKeyword2") {
       params.set("keyword", subregion?.keywordKo ?? preset?.keywordKo ?? region.name_ko);
-      params.set("contentTypeId", contentTypeByCategory[options.category]);
     } else {
-      params.set("contentTypeId", contentTypeByCategory[options.category]);
     }
 
-    const { items, totalCount } = await callTourApi(endpoint, params);
+    let resolved: { items: Record<string, unknown>[]; totalCount: number } | null = null;
+    let usedContentTypeId: string | null = null;
+    let lastCallError: unknown = null;
+
+    for (const contentTypeId of contentTypeFallbackByCategory[options.category]) {
+      params.set("contentTypeId", contentTypeId);
+      try {
+        const result = await callTourApi(endpoint, params);
+        resolved = result;
+        usedContentTypeId = contentTypeId;
+        break;
+      } catch (error) {
+        lastCallError = error;
+      }
+    }
+
+    if (!resolved) {
+      throw lastCallError instanceof Error ? lastCallError : new Error("tourapi:all_contenttype_candidates_failed");
+    }
+
+    const { items, totalCount } = resolved;
 
     const normalized = items.map((item) => normalizeTourItem(item, options.category));
     const filtered =
@@ -335,7 +360,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
       items: filtered,
       hasMore,
       source: "tourapi",
-      debug: `source:tourapi:${endpoint}:${lDongRegnCd ?? "none"}:${lDongSignguCd ?? "none"}:${areaCode ?? "none"}:${sigunguCode ?? "none"}`
+      debug: `source:tourapi:${endpoint}:ct=${usedContentTypeId ?? "none"}:${lDongRegnCd ?? "none"}:${lDongSignguCd ?? "none"}:${areaCode ?? "none"}:${sigunguCode ?? "none"}`
     };
   } catch (error) {
     const errorMessage =
