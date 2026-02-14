@@ -1,7 +1,7 @@
 ﻿name = "koreatravelrecommend"
 main = ".open-next/worker.js"
 compatibility_date = "2026-02-13"
-compatibility_flags = ["nodejs_compat"]
+compatibility_flags = ["nodejs_compat", "nodejs_compat_populate_process_env"]
 routes = [
   { pattern = "visitkoreaguide.org", custom_domain = true }
 ]
