@@ -174,9 +174,18 @@ async function callTourApi(endpoint: string, params: URLSearchParams) {
         }
 
         const itemNode = json.response?.body?.items?.item;
-        if (!itemNode) return { items: [], totalCount: 0 };
+        if (!itemNode) {
+          lastError = `tourapi_empty:${base}:${endpoint}:${keyParam}`;
+          continue;
+        }
+
         const items = Array.isArray(itemNode) ? itemNode : [itemNode];
         const totalCount = Number(json.response?.body?.totalCount ?? items.length);
+        if (totalCount <= 0 || items.length === 0) {
+          lastError = `tourapi_empty_total:${base}:${endpoint}:${keyParam}`;
+          continue;
+        }
+
         return { items, totalCount };
       }
     }
