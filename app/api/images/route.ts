@@ -24,6 +24,10 @@ function normalizeServiceKey(raw: string): string {
   }
 }
 
+function unique(values: string[]): string[] {
+  return Array.from(new Set(values.filter((value) => value.length > 0)));
+}
+
 function parseItems(data: TourPhotoResponse): TourPhotoItem[] {
   const rawItem = data.response?.body?.items?.item;
   if (Array.isArray(rawItem)) return rawItem;
@@ -49,45 +53,76 @@ export async function GET(request: Request) {
     });
   }
 
-  const baseParams = new URLSearchParams({
-    serviceKey: key,
+  const rawTrimmed = rawKey?.trim() ?? "";
+  const keyCandidates = unique([key, rawTrimmed]);
+  const keyParamCandidates = ["serviceKey", "ServiceKey"] as const;
+  const commonParams = {
     numOfRows: String(count),
     pageNo: "1",
     MobileOS: "ETC",
     MobileApp: "KoreaTravel",
     _type: "json",
     arrange: "A"
-  });
-
-  const searchEndpoint = new URL("https://apis.data.go.kr/B551011/PhotoGalleryService/gallerySearchList");
-  baseParams.forEach((value, keyName) => searchEndpoint.searchParams.set(keyName, value));
-  searchEndpoint.searchParams.set("galSearchKeyword", query);
-
-  const searchResponse = await fetch(searchEndpoint.toString(), { next: { revalidate: 3600 } });
+  };
 
   let items: TourPhotoItem[] = [];
-  if (searchResponse.ok) {
-    const searchData = (await searchResponse.json()) as TourPhotoResponse;
-    items = parseItems(searchData);
+  let lastDebug = "no_attempt";
+
+  for (const keyName of keyParamCandidates) {
+    for (const serviceKey of keyCandidates) {
+      const searchEndpoint = new URL("https://apis.data.go.kr/B551011/PhotoGalleryService/gallerySearchList");
+      for (const [paramKey, value] of Object.entries(commonParams)) {
+        searchEndpoint.searchParams.set(paramKey, value);
+      }
+      searchEndpoint.searchParams.set(keyName, serviceKey);
+      searchEndpoint.searchParams.set("galSearchKeyword", query);
+
+      const searchResponse = await fetch(searchEndpoint.toString(), { next: { revalidate: 3600 } });
+      if (searchResponse.ok) {
+        const searchData = (await searchResponse.json()) as TourPhotoResponse;
+        items = parseItems(searchData);
+        if (items.length) break;
+        lastDebug = `search_ok_empty:${keyName}`;
+      } else {
+        const body = (await searchResponse.text()).slice(0, 180).replace(/\s+/g, " ");
+        lastDebug = `search_${searchResponse.status}:${keyName}:${body}`;
+      }
+    }
+    if (items.length) break;
   }
 
   if (!items.length) {
-    const listEndpoint = new URL("https://apis.data.go.kr/B551011/PhotoGalleryService/galleryList");
-    baseParams.forEach((value, keyName) => listEndpoint.searchParams.set(keyName, value));
-    const listResponse = await fetch(listEndpoint.toString(), { next: { revalidate: 3600 } });
+    for (const keyName of keyParamCandidates) {
+      for (const serviceKey of keyCandidates) {
+        const listEndpoint = new URL("https://apis.data.go.kr/B551011/PhotoGalleryService/galleryList");
+        for (const [paramKey, value] of Object.entries(commonParams)) {
+          listEndpoint.searchParams.set(paramKey, value);
+        }
+        listEndpoint.searchParams.set(keyName, serviceKey);
 
-    if (!listResponse.ok) {
-      return Response.json(
-        {
-          error: "Failed to load tourism photos",
-          debug: `upstream_status:${listResponse.status}`
-        },
-        { status: 502 }
-      );
+        const listResponse = await fetch(listEndpoint.toString(), { next: { revalidate: 3600 } });
+        if (listResponse.ok) {
+          const listData = (await listResponse.json()) as TourPhotoResponse;
+          items = parseItems(listData);
+          if (items.length) break;
+          lastDebug = `list_ok_empty:${keyName}`;
+        } else {
+          const body = (await listResponse.text()).slice(0, 180).replace(/\s+/g, " ");
+          lastDebug = `list_${listResponse.status}:${keyName}:${body}`;
+        }
+      }
+      if (items.length) break;
     }
+  }
 
-    const listData = (await listResponse.json()) as TourPhotoResponse;
-    items = parseItems(listData);
+  if (!items.length) {
+    return Response.json(
+      {
+        error: "Failed to load tourism photos",
+        debug: lastDebug
+      },
+      { status: 502 }
+    );
   }
 
   const photos: UnsplashPhoto[] = items

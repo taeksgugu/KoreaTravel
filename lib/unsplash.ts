@@ -24,6 +24,10 @@ function normalizeServiceKey(raw: string): string {
   }
 }
 
+function unique(values: string[]): string[] {
+  return Array.from(new Set(values.filter((value) => value.length > 0)));
+}
+
 function parseItems(data: TourPhotoResponse): TourPhotoItem[] {
   const rawItem = data.response?.body?.items?.item;
   if (Array.isArray(rawItem)) return rawItem;
@@ -38,39 +42,60 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
   }
 
   try {
-    const baseParams = new URLSearchParams({
-      serviceKey: key,
+    const rawTrimmed = rawKey?.trim() ?? "";
+    const keyCandidates = unique([key, rawTrimmed]);
+    const keyParamCandidates = ["serviceKey", "ServiceKey"] as const;
+    const commonParams = {
       numOfRows: "1",
       pageNo: "1",
       MobileOS: "ETC",
       MobileApp: "KoreaTravel",
       _type: "json",
       arrange: "A"
-    });
-
-    const searchEndpoint = new URL("https://apis.data.go.kr/B551011/PhotoGalleryService/gallerySearchList");
-    baseParams.forEach((value, keyName) => searchEndpoint.searchParams.set(keyName, value));
-    searchEndpoint.searchParams.set("galSearchKeyword", query);
-
-    const response = await fetch(searchEndpoint.toString(), {
-      next: { revalidate: 3600 }
-    });
+    };
 
     let items: TourPhotoItem[] = [];
-    if (response.ok) {
-      const data = (await response.json()) as TourPhotoResponse;
-      items = parseItems(data);
+    for (const keyName of keyParamCandidates) {
+      for (const serviceKey of keyCandidates) {
+        const searchEndpoint = new URL("https://apis.data.go.kr/B551011/PhotoGalleryService/gallerySearchList");
+        for (const [paramKey, value] of Object.entries(commonParams)) {
+          searchEndpoint.searchParams.set(paramKey, value);
+        }
+        searchEndpoint.searchParams.set(keyName, serviceKey);
+        searchEndpoint.searchParams.set("galSearchKeyword", query);
+
+        const response = await fetch(searchEndpoint.toString(), {
+          next: { revalidate: 3600 }
+        });
+
+        if (!response.ok) continue;
+        const data = (await response.json()) as TourPhotoResponse;
+        items = parseItems(data);
+        if (items.length) break;
+      }
+      if (items.length) break;
     }
 
     if (!items.length) {
-      const listEndpoint = new URL("https://apis.data.go.kr/B551011/PhotoGalleryService/galleryList");
-      baseParams.forEach((value, keyName) => listEndpoint.searchParams.set(keyName, value));
-      const listResponse = await fetch(listEndpoint.toString(), {
-        next: { revalidate: 3600 }
-      });
-      if (!listResponse.ok) return null;
-      const listData = (await listResponse.json()) as TourPhotoResponse;
-      items = parseItems(listData);
+      for (const keyName of keyParamCandidates) {
+        for (const serviceKey of keyCandidates) {
+          const listEndpoint = new URL("https://apis.data.go.kr/B551011/PhotoGalleryService/galleryList");
+          for (const [paramKey, value] of Object.entries(commonParams)) {
+            listEndpoint.searchParams.set(paramKey, value);
+          }
+          listEndpoint.searchParams.set(keyName, serviceKey);
+
+          const listResponse = await fetch(listEndpoint.toString(), {
+            next: { revalidate: 3600 }
+          });
+          if (!listResponse.ok) continue;
+
+          const listData = (await listResponse.json()) as TourPhotoResponse;
+          items = parseItems(listData);
+          if (items.length) break;
+        }
+        if (items.length) break;
+      }
     }
 
     const item = items[0];
