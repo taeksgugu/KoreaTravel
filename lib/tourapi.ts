@@ -306,8 +306,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
       _type: "json",
       numOfRows: String(options.pageSize),
       pageNo: String(options.page),
-      arrange,
-      listYN: "Y"
+      arrange
     });
 
     if (lDongRegnCd) params.set("lDongRegnCd", lDongRegnCd);
