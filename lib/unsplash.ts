@@ -4,6 +4,9 @@ import { getRuntimeEnv } from "@/lib/runtimeEnv";
 type TourPhotoItem = {
   galWebImageUrl?: string;
   galPhotographer?: string;
+  galTitle?: string;
+  galSearchKeyword?: string;
+  galPhotographyLocation?: string;
 };
 
 type TourPhotoResponse = {
@@ -36,6 +39,67 @@ function hashString(input: string): number {
   return hash;
 }
 
+function buildKeywordCandidates(query: string): string[] {
+  const q = query.toLowerCase();
+  const locationMap: Array<[string, string]> = [
+    ["seoul", "서울"],
+    ["busan", "부산"],
+    ["jeju", "제주"],
+    ["incheon", "인천"],
+    ["gangneung", "강릉"],
+    ["sokcho", "속초"],
+    ["jeonju", "전주"],
+    ["gyeongju", "경주"],
+    ["daegu", "대구"],
+    ["andong", "안동"],
+    ["yeosu", "여수"],
+    ["boryeong", "보령"],
+    ["chuncheon", "춘천"],
+    ["namhae", "남해"],
+    ["damyang", "담양"],
+    ["korea", "한국"]
+  ];
+  const themeMap: Array<[string[], string]> = [
+    [["night", "nightlife", "neon"], "야경"],
+    [["beach", "coast", "coastal", "ocean", "harbor", "harbour", "sea"], "바다"],
+    [["mountain", "hiking", "trail"], "산"],
+    [["forest", "bamboo"], "숲"],
+    [["temple", "spiritual"], "사찰"],
+    [["traditional", "hanok", "heritage", "palace"], "전통"],
+    [["food", "restaurant", "street food", "market", "culinary"], "음식"],
+    [["island"], "섬"],
+    [["city", "urban", "skyline"], "도시"],
+    [["cafe", "aesthetic"], "카페"]
+  ];
+
+  const locations = locationMap.filter(([needle]) => q.includes(needle)).map(([, ko]) => ko);
+  const themes = themeMap
+    .filter(([needles]) => needles.some((needle) => q.includes(needle)))
+    .map(([, ko]) => ko);
+
+  const candidates: string[] = [];
+  if (locations.length && themes.length) {
+    candidates.push(`${locations[0]} ${themes[0]}`);
+  }
+  candidates.push(...locations, ...themes, query);
+
+  return unique(candidates).slice(0, 6);
+}
+
+function relevanceScore(item: TourPhotoItem, candidates: string[]): number {
+  const text = `${item.galTitle ?? ""} ${item.galSearchKeyword ?? ""} ${item.galPhotographyLocation ?? ""}`.toLowerCase();
+  let score = 0;
+  for (const candidate of candidates) {
+    const c = candidate.toLowerCase();
+    if (text.includes(c)) score += 3;
+    const pieces = c.split(/\s+/).filter(Boolean);
+    for (const piece of pieces) {
+      if (piece.length >= 2 && text.includes(piece)) score += 1;
+    }
+  }
+  return score;
+}
+
 function parseItems(data: TourPhotoResponse): TourPhotoItem[] {
   const rawItem = data.response?.body?.items?.item;
   if (Array.isArray(rawItem)) return rawItem;
@@ -62,6 +126,7 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
       "https://apis.data.go.kr/B551011/PhotoGalleryService/galleryList"
     ];
     const queryHash = hashString(query);
+    const keywordCandidates = buildKeywordCandidates(query);
     const fallbackPageNo = String((queryHash % 20) + 1);
     const commonParams = {
       numOfRows: "1",
@@ -73,28 +138,34 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
     };
 
     let items: TourPhotoItem[] = [];
-    for (const endpointUrl of searchEndpointCandidates) {
-      for (const keyName of keyParamCandidates) {
-        for (const serviceKey of keyCandidates) {
-          const searchEndpoint = new URL(endpointUrl);
-          for (const [paramKey, value] of Object.entries(commonParams)) {
-            searchEndpoint.searchParams.set(paramKey, value);
+    for (const keyword of keywordCandidates) {
+      for (const endpointUrl of searchEndpointCandidates) {
+        for (const keyName of keyParamCandidates) {
+          for (const serviceKey of keyCandidates) {
+            const searchEndpoint = new URL(endpointUrl);
+            for (const [paramKey, value] of Object.entries(commonParams)) {
+              searchEndpoint.searchParams.set(paramKey, value);
+            }
+            searchEndpoint.searchParams.set(keyName, serviceKey);
+            searchEndpoint.searchParams.set("galSearchKeyword", keyword);
+
+            const response = await fetch(searchEndpoint.toString(), {
+              next: { revalidate: 3600 }
+            });
+
+            if (!response.ok) continue;
+            const data = (await response.json()) as TourPhotoResponse;
+            const found = parseItems(data);
+            if (found.length) {
+              items = items.concat(found);
+              break;
+            }
           }
-          searchEndpoint.searchParams.set(keyName, serviceKey);
-          searchEndpoint.searchParams.set("galSearchKeyword", query);
-
-          const response = await fetch(searchEndpoint.toString(), {
-            next: { revalidate: 3600 }
-          });
-
-          if (!response.ok) continue;
-          const data = (await response.json()) as TourPhotoResponse;
-          items = parseItems(data);
-          if (items.length) break;
+          if (items.length >= 8) break;
         }
-        if (items.length) break;
+        if (items.length >= 8) break;
       }
-      if (items.length) break;
+      if (items.length >= 8) break;
     }
 
     if (!items.length) {
@@ -126,7 +197,10 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
       }
     }
 
-    const item = items.length ? items[queryHash % items.length] : undefined;
+    const ranked = items.sort(
+      (a, b) => relevanceScore(b, keywordCandidates) - relevanceScore(a, keywordCandidates)
+    );
+    const item = ranked.length ? ranked[queryHash % ranked.length] : undefined;
     if (!item?.galWebImageUrl) {
       return null;
     }
