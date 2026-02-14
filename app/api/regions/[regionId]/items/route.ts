@@ -8,6 +8,7 @@ import type { Category, EventStatus, RegionItemsResponse } from "@/lib/types";
 
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const validCategories: Category[] = ["attractions", "food", "stay", "events"];
+const API_REVISION = "api-rev-2026-02-14-01";
 
 export async function GET(
   request: NextRequest,
@@ -87,7 +88,7 @@ export async function GET(
     page,
     pageSize,
     hasMore,
-    debug,
+    debug: debug ? `${debug}|${API_REVISION}` : API_REVISION,
     items
   };
 
