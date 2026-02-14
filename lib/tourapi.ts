@@ -48,6 +48,18 @@ function filterEventsByStatus(items: NormalizedItem[], status: EventStatus): Nor
 
 const TOUR_API_BASE = process.env.TOUR_API_BASE_URL ?? "https://apis.data.go.kr/B551011/KorService1";
 
+function normalizeServiceKey(rawKey: string | undefined): string | undefined {
+  if (!rawKey) return undefined;
+  const trimmed = rawKey.trim();
+  if (!trimmed) return undefined;
+  if (!trimmed.includes("%")) return trimmed;
+  try {
+    return decodeURIComponent(trimmed);
+  } catch {
+    return trimmed;
+  }
+}
+
 const areaCodeByRegion: Record<string, string> = {
   seoul: "1",
   incheon: "2",
@@ -177,7 +189,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
     };
   }
 
-  const tourApiKey = process.env.TOUR_API_KEY;
+  const tourApiKey = normalizeServiceKey(process.env.TOUR_API_KEY);
   if (!tourApiKey) {
     const mock = createMockItems(region.name_en, options.category, options.page, options.pageSize);
     return {
