@@ -91,11 +91,19 @@ export async function GET(
     items
   };
 
-  setCache(cacheKey, payload, CACHE_TTL_MS);
+  const isMockResponse =
+    (payload.debug?.startsWith("mock_reason:") ?? false) ||
+    (payload.items.length > 0 && payload.items.every((item) => item.source === "mock"));
+
+  if (!isMockResponse) {
+    setCache(cacheKey, payload, CACHE_TTL_MS);
+  }
 
   return NextResponse.json(payload, {
     headers: {
-      "Cache-Control": "public, s-maxage=900, stale-while-revalidate=600"
+      "Cache-Control": isMockResponse
+        ? "no-store"
+        : "public, s-maxage=900, stale-while-revalidate=600"
     }
   });
 }
