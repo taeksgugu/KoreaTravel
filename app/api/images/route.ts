@@ -16,6 +16,14 @@ type TourPhotoResponse = {
   };
 };
 
+function normalizeServiceKey(raw: string): string {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 function parseItems(data: TourPhotoResponse): TourPhotoItem[] {
   const rawItem = data.response?.body?.items?.item;
   if (Array.isArray(rawItem)) return rawItem;
@@ -32,7 +40,8 @@ export async function GET(request: Request) {
     return Response.json({ error: "query is required" }, { status: 400 });
   }
 
-  const key = getRuntimeEnv("TOUR_PHOTO_API_KEY") ?? getRuntimeEnv("TOUR_API_KEY");
+  const rawKey = getRuntimeEnv("TOUR_PHOTO_API_KEY") ?? getRuntimeEnv("TOUR_API_KEY");
+  const key = rawKey ? normalizeServiceKey(rawKey.trim()) : "";
   if (!key) {
     return Response.json({
       photos: [] as UnsplashPhoto[],
@@ -54,9 +63,7 @@ export async function GET(request: Request) {
   baseParams.forEach((value, keyName) => searchEndpoint.searchParams.set(keyName, value));
   searchEndpoint.searchParams.set("galSearchKeyword", query);
 
-  const searchResponse = await fetch(searchEndpoint.toString(), {
-    next: { revalidate: 3600 }
-  });
+  const searchResponse = await fetch(searchEndpoint.toString(), { next: { revalidate: 3600 } });
 
   let items: TourPhotoItem[] = [];
   if (searchResponse.ok) {
@@ -67,12 +74,16 @@ export async function GET(request: Request) {
   if (!items.length) {
     const listEndpoint = new URL("https://apis.data.go.kr/B551011/PhotoGalleryService/galleryList");
     baseParams.forEach((value, keyName) => listEndpoint.searchParams.set(keyName, value));
-    const listResponse = await fetch(listEndpoint.toString(), {
-      next: { revalidate: 3600 }
-    });
+    const listResponse = await fetch(listEndpoint.toString(), { next: { revalidate: 3600 } });
 
     if (!listResponse.ok) {
-      return Response.json({ error: "Failed to load tourism photos" }, { status: 502 });
+      return Response.json(
+        {
+          error: "Failed to load tourism photos",
+          debug: `upstream_status:${listResponse.status}`
+        },
+        { status: 502 }
+      );
     }
 
     const listData = (await listResponse.json()) as TourPhotoResponse;

@@ -16,6 +16,14 @@ type TourPhotoResponse = {
   };
 };
 
+function normalizeServiceKey(raw: string): string {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 function parseItems(data: TourPhotoResponse): TourPhotoItem[] {
   const rawItem = data.response?.body?.items?.item;
   if (Array.isArray(rawItem)) return rawItem;
@@ -23,7 +31,8 @@ function parseItems(data: TourPhotoResponse): TourPhotoItem[] {
 }
 
 export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto | null> {
-  const key = getRuntimeEnv("TOUR_PHOTO_API_KEY") ?? getRuntimeEnv("TOUR_API_KEY");
+  const rawKey = getRuntimeEnv("TOUR_PHOTO_API_KEY") ?? getRuntimeEnv("TOUR_API_KEY");
+  const key = rawKey ? normalizeServiceKey(rawKey.trim()) : "";
   if (!key || !query.trim()) {
     return null;
   }
