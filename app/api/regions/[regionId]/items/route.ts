@@ -68,7 +68,7 @@ export async function GET(
     });
   }
 
-  const { items, hasMore } = await fetchRegionItems({
+  const { items, hasMore, debug } = await fetchRegionItems({
     regionId,
     subregionId,
     category,
@@ -87,6 +87,7 @@ export async function GET(
     page,
     pageSize,
     hasMore,
+    debug,
     items
   };
 

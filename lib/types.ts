@@ -44,6 +44,7 @@ export type RegionItemsResponse = {
   page: number;
   pageSize: number;
   hasMore: boolean;
+  debug?: string;
   items: NormalizedItem[];
 };
 

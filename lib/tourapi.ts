@@ -15,6 +15,13 @@ type FetchOptions = {
   eventStatus?: EventStatus;
 };
 
+type FetchResult = {
+  items: NormalizedItem[];
+  hasMore: boolean;
+  source: "tourapi" | "mock" | "public-festival";
+  debug?: string;
+};
+
 function parseYmd(value: string | null): Date | null {
   if (!value) return null;
   if (/^\d{8}$/.test(value)) {
@@ -175,7 +182,7 @@ async function fetchPublicFestival(options: FetchOptions): Promise<NormalizedIte
   return rows.map(normalizePublicFestivalItem);
 }
 
-export async function fetchRegionItems(options: FetchOptions): Promise<{ items: NormalizedItem[]; hasMore: boolean; source: "tourapi" | "mock" | "public-festival" }> {
+export async function fetchRegionItems(options: FetchOptions): Promise<FetchResult> {
   const region = regionById[options.regionId];
   if (!region) {
     const mock = createMockItems(options.regionId, options.category, options.page, options.pageSize);
@@ -185,7 +192,8 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
           ? filterEventsByStatus(mock.items, options.eventStatus ?? "all")
           : mock.items,
       hasMore: mock.hasMore,
-      source: "mock"
+      source: "mock",
+      debug: "mock_reason:unknown_region"
     };
   }
 
@@ -198,7 +206,8 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
           ? filterEventsByStatus(mock.items, options.eventStatus ?? "all")
           : mock.items,
       hasMore: mock.hasMore,
-      source: "mock"
+      source: "mock",
+      debug: "mock_reason:missing_tour_api_key"
     };
   }
 
@@ -219,7 +228,8 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
         return {
           items: filteredFestival,
           hasMore: festivalFallback.length >= options.pageSize,
-          source: "public-festival"
+          source: "public-festival",
+          debug: "source:public_festival_fallback"
         };
       }
     }
@@ -261,7 +271,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
         : normalized;
     const hasMore = options.page * options.pageSize < totalCount;
 
-    return { items: filtered, hasMore, source: "tourapi" };
+    return { items: filtered, hasMore, source: "tourapi", debug: "source:tourapi" };
   } catch {
     const mock = createMockItems(region.name_en, options.category, options.page, options.pageSize);
     return {
@@ -270,7 +280,8 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
           ? filterEventsByStatus(mock.items, options.eventStatus ?? "all")
           : mock.items,
       hasMore: mock.hasMore,
-      source: "mock"
+      source: "mock",
+      debug: "mock_reason:tourapi_request_failed"
     };
   }
 }
