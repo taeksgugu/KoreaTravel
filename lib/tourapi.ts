@@ -75,13 +75,6 @@ function normalizeServiceKey(rawKey: string | undefined): string | undefined {
   }
 }
 
-const contentTypeByCategory: Record<Category, string> = {
-  attractions: "12",
-  food: "39",
-  stay: "32",
-  events: "15"
-};
-
 const contentTypeFallbackByCategory: Record<Category, string[]> = {
   attractions: ["12", "76"],
   food: ["39", "82"],
