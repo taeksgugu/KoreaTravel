@@ -13,10 +13,18 @@ const tabs: { id: Category; label: string }[] = [
 type Props = {
   regionId: string;
   regionName: string;
+  subregionId?: string;
+  subregionName?: string;
   presetId?: string;
 };
 
-export function RegionContentPanel({ regionId, regionName, presetId }: Props) {
+export function RegionContentPanel({
+  regionId,
+  regionName,
+  subregionId,
+  subregionName,
+  presetId
+}: Props) {
   const [category, setCategory] = useState<Category>("attractions");
   const [items, setItems] = useState<NormalizedItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -28,7 +36,7 @@ export function RegionContentPanel({ regionId, regionName, presetId }: Props) {
   useEffect(() => {
     setPage(1);
     setItems([]);
-  }, [regionId, category, sort, presetId]);
+  }, [regionId, category, sort, presetId, subregionId]);
 
   useEffect(() => {
     let ignore = false;
@@ -45,6 +53,7 @@ export function RegionContentPanel({ regionId, regionName, presetId }: Props) {
       });
 
       if (presetId) query.set("presetId", presetId);
+      if (subregionId) query.set("subregionId", subregionId);
 
       try {
         const response = await fetch(`/api/regions/${regionId}/items?${query.toString()}`);
@@ -70,11 +79,12 @@ export function RegionContentPanel({ regionId, regionName, presetId }: Props) {
     return () => {
       ignore = true;
     };
-  }, [category, page, presetId, regionId, sort]);
+  }, [category, page, presetId, regionId, sort, subregionId]);
 
   const headerTitle = useMemo(() => {
-    return presetId ? `${regionName} (Preset Applied)` : regionName;
-  }, [presetId, regionName]);
+    const base = subregionName ? `${regionName} / ${subregionName}` : regionName;
+    return presetId ? `${base} (Preset Applied)` : base;
+  }, [presetId, regionName, subregionName]);
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -165,4 +175,3 @@ export function RegionContentPanel({ regionId, regionName, presetId }: Props) {
     </section>
   );
 }
-

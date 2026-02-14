@@ -1,6 +1,7 @@
 ﻿import { createMockItems } from "./mock-data";
 import { presetById } from "./presets";
 import { regionById } from "./regions";
+import { subregionById } from "./subregions";
 import type { Category, NormalizedItem } from "./types";
 
 type FetchOptions = {
@@ -10,6 +11,7 @@ type FetchOptions = {
   pageSize: number;
   sort: "latest" | "title";
   presetId?: string;
+  subregionId?: string;
 };
 
 const TOUR_API_BASE = process.env.TOUR_API_BASE_URL ?? "https://apis.data.go.kr/B551011/KorService1";
@@ -90,8 +92,6 @@ async function callTourApi(endpoint: string, params: URLSearchParams) {
         items?: {
           item?: Record<string, unknown>[] | Record<string, unknown>;
         };
-        numOfRows?: number;
-        pageNo?: number;
         totalCount?: number;
       };
     };
@@ -122,7 +122,8 @@ async function fetchPublicFestival(options: FetchOptions): Promise<NormalizedIte
   if (!response.ok) return null;
 
   const json = (await response.json()) as Record<string, unknown>;
-  const rows = (json.data as Record<string, unknown>[] | undefined) ??
+  const rows =
+    (json.data as Record<string, unknown>[] | undefined) ??
     (json.response as { body?: { items?: { item?: Record<string, unknown>[] } } } | undefined)?.body?.items?.item;
 
   if (!rows || !Array.isArray(rows)) return null;
@@ -142,7 +143,9 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
   }
 
   const preset = options.presetId ? presetById[options.presetId] : undefined;
-  const areaCode = preset?.areaCode ?? areaCodeByRegion[options.regionId];
+  const subregion = options.subregionId ? subregionById[options.subregionId] : undefined;
+  const areaCode = subregion?.areaCode ?? preset?.areaCode ?? areaCodeByRegion[options.regionId];
+  const sigunguCode = subregion?.sigunguCode ?? preset?.sigunguCode;
   const arrange = options.sort === "latest" ? "C" : "A";
 
   try {
@@ -157,7 +160,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
       }
     }
 
-    const endpoint = preset ? "searchKeyword1" : options.category === "events" ? "searchFestival1" : "areaBasedList1";
+    const endpoint = preset || subregion ? "searchKeyword1" : options.category === "events" ? "searchFestival1" : "areaBasedList1";
 
     const params = new URLSearchParams({
       serviceKey: tourApiKey,
@@ -170,16 +173,17 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
     });
 
     if (areaCode) params.set("areaCode", areaCode);
+    if (sigunguCode) params.set("sigunguCode", sigunguCode);
 
     if (endpoint === "searchKeyword1") {
-      params.set("keyword", preset?.keywordKo ?? region.name_ko);
+      params.set("keyword", subregion?.keywordKo ?? preset?.keywordKo ?? region.name_ko);
       params.set("contentTypeId", contentTypeByCategory[options.category]);
     } else if (endpoint === "searchFestival1") {
       params.set("eventStartDate", new Date().toISOString().slice(0, 10).replace(/-/g, ""));
-      if (preset?.keywordKo) params.set("keyword", preset.keywordKo);
-      if (contentTypeByCategory[options.category]) {
-        params.set("contentTypeId", contentTypeByCategory[options.category]);
+      if (subregion?.keywordKo || preset?.keywordKo) {
+        params.set("keyword", subregion?.keywordKo ?? preset?.keywordKo ?? "");
       }
+      params.set("contentTypeId", contentTypeByCategory[options.category]);
     } else {
       params.set("contentTypeId", contentTypeByCategory[options.category]);
     }
@@ -194,4 +198,3 @@ export async function fetchRegionItems(options: FetchOptions): Promise<{ items: 
     return { ...createMockItems(region.name_en, options.category, options.page, options.pageSize), source: "mock" };
   }
 }
-

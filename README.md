@@ -36,6 +36,7 @@ This separation allows map replacement without changing server/data panel logic.
 - Feature properties: `region_id`, `name_ko`, `name_en`, `admin_code`
 - Hover highlight via cursor and click selection state
 - `fitBounds` on selected polygon
+- Supports drill-down overlays for key city/county subregions
 
 2. Regional content panel
 - Tabs: `Attractions`, `Food`, `Stay`, `Events`
@@ -45,7 +46,7 @@ This separation allows map replacement without changing server/data panel logic.
 
 3. Server API
 - Endpoint:
-  - `/api/regions/[regionId]/items?category=attractions|food|stay|events&page=1&pageSize=10&sort=latest&presetId=...`
+  - `/api/regions/[regionId]/items?category=attractions|food|stay|events&page=1&pageSize=10&sort=latest&presetId=...&subregionId=...`
 - TourAPI call only on server side
 - Response normalized to:
   - `id`, `title`, `category`, `addr`, `mapx`, `mapy`, `firstImage`, `tel`, `overview`, `startDate`, `endDate`
@@ -58,20 +59,14 @@ This separation allows map replacement without changing server/data panel logic.
   - Seoul, Busan, Jeju, Incheon, Chuncheon, Gangneung, Sokcho, Jeonju, Gyeongju,
     Namhae, Damyang, Daegu, Andong, Yeosu, Boryeong
 - Current strategy: preset applies region + keyword-focused query (MVP without full sigungu polygons)
+ - For non-metro city presets (e.g., Chuncheon, Gangneung), preset also selects drill-down subregion
 
 ## Drill-down Strategy
 
-Current implementation uses **Preset-based subregion targeting** for city/county-level destinations.
-
-Why:
-- Stable MVP with clear UX and low API failure risk
-- Keeps map/list architecture clean
-- Ready for step-2 drill-down expansion
-
-Step-2 extension path:
-- Add `data/regions/sigungu/*.geojson`
-- Implement province -> sigungu polygon drill-down in `RegionMap`
-- Keep `RegionContentPanel` and API contract unchanged
+Current implementation includes practical drill-down:
+- Province click selects `regionId`
+- Subregion overlays (for requested city/county targets) can be clicked to select `subregionId`
+- Content API receives both and applies keyword + area/sigungu query when available
 
 ## Environment Variables
 

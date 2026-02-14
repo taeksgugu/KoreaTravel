@@ -11,6 +11,15 @@ export type RegionFeatureProperties = {
 
 export type RegionFeature = GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon, RegionFeatureProperties>;
 
+export type SubregionFeatureProperties = {
+  subregion_id: string;
+  parent_region_id: string;
+  name_ko: string;
+  name_en: string;
+  area_code?: string;
+  sigungu_code?: string;
+};
+
 export type NormalizedItem = {
   id: string;
   title: string;
@@ -28,6 +37,7 @@ export type NormalizedItem = {
 
 export type RegionItemsResponse = {
   regionId: string;
+  subregionId?: string;
   presetId?: string;
   category: Category;
   page: number;
@@ -41,8 +51,21 @@ export type RegionPreset = {
   nameEn: string;
   nameKo: string;
   regionId: string;
+  subregionId?: string;
   keywordKo: string;
   keywordEn: string;
+  areaCode?: string;
+  sigunguCode?: string;
+  center: [number, number];
+};
+
+export type Subregion = {
+  id: string;
+  parentRegionId: string;
+  nameEn: string;
+  nameKo: string;
+  keywordEn: string;
+  keywordKo: string;
   areaCode?: string;
   sigunguCode?: string;
   center: [number, number];
