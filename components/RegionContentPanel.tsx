@@ -11,6 +11,7 @@ const tabs: { id: Category; label: string }[] = [
 ];
 
 type Props = {
+  locale: "en" | "ko";
   regionId: string;
   regionName: string;
   subregionId?: string;
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export function RegionContentPanel({
+  locale,
   regionId,
   regionName,
   subregionId,
@@ -50,7 +52,8 @@ export function RegionContentPanel({
         category,
         page: String(page),
         pageSize: "10",
-        sort
+        sort,
+        locale
       });
       if (category === "events") query.set("eventStatus", eventStatus);
 
@@ -81,7 +84,7 @@ export function RegionContentPanel({
     return () => {
       ignore = true;
     };
-  }, [category, eventStatus, page, presetId, regionId, sort, subregionId]);
+  }, [category, eventStatus, locale, page, presetId, regionId, sort, subregionId]);
 
   const headerTitle = useMemo(() => {
     const base = subregionName ? `${regionName} / ${subregionName}` : regionName;

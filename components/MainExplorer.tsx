@@ -75,6 +75,7 @@ export function MainExplorer({ locale }: Props) {
           }}
         />
         <RegionContentPanel
+          locale={locale}
           regionId={selectedRegionId}
           regionName={selectedRegionName}
           subregionId={selectedSubregionId}

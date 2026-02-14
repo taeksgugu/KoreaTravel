@@ -28,6 +28,7 @@ export async function GET(
   const eventStatus = (searchParams.get("eventStatus") ?? "all") as EventStatus;
   const presetId = searchParams.get("presetId") ?? undefined;
   const subregionId = searchParams.get("subregionId") ?? undefined;
+  const locale = searchParams.get("locale") === "ko" ? "ko" : "en";
 
   if (!validCategories.includes(category)) {
     return NextResponse.json({ error: "Invalid category" }, { status: 400 });
@@ -52,6 +53,7 @@ export async function GET(
 
   const cacheKey = [
     regionId,
+    locale,
     subregionId ?? "none",
     category,
     page,
@@ -76,6 +78,7 @@ export async function GET(
     page,
     pageSize,
     sort,
+    locale,
     eventStatus,
     presetId
   });

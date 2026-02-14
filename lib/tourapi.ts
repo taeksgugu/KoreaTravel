@@ -6,6 +6,7 @@ import type { Category, EventStatus, NormalizedItem } from "./types";
 
 type FetchOptions = {
   regionId: string;
+  locale: "en" | "ko";
   category: Category;
   page: number;
   pageSize: number;
@@ -53,15 +54,8 @@ function filterEventsByStatus(items: NormalizedItem[], status: EventStatus): Nor
   });
 }
 
-const TOUR_API_BASE_CANDIDATES = Array.from(
-  new Set(
-    [
-      process.env.TOUR_API_BASE_URL,
-      "https://apis.data.go.kr/B551011/KorService2",
-      "https://apis.data.go.kr/B551011/EngService2"
-    ].filter((value): value is string => Boolean(value))
-  )
-);
+const KOR_SERVICE2 = "https://apis.data.go.kr/B551011/KorService2";
+const ENG_SERVICE2 = "https://apis.data.go.kr/B551011/EngService2";
 
 function normalizeServiceKey(rawKey: string | undefined): string | undefined {
   if (!rawKey) return undefined;
@@ -147,7 +141,14 @@ function normalizePublicFestivalItem(raw: Record<string, unknown>): NormalizedIt
   };
 }
 
-async function callTourApi(endpoint: string, params: URLSearchParams) {
+function getTourApiBaseCandidates(locale: "en" | "ko") {
+  const preferred = locale === "en" ? [ENG_SERVICE2, KOR_SERVICE2] : [KOR_SERVICE2, ENG_SERVICE2];
+  return Array.from(
+    new Set([process.env.TOUR_API_BASE_URL, ...preferred].filter((value): value is string => Boolean(value)))
+  );
+}
+
+async function callTourApi(endpoint: string, params: URLSearchParams, bases: string[]) {
   const keyCandidates = Array.from(
     new Set([params.get("serviceKey") ?? "", resolveTourApiKey() ?? ""])
   ).filter(Boolean);
@@ -155,7 +156,7 @@ async function callTourApi(endpoint: string, params: URLSearchParams) {
 
   let lastError = "tourapi:no_attempt";
 
-  for (const base of TOUR_API_BASE_CANDIDATES) {
+  for (const base of bases) {
     for (const keyParam of keyParamNames) {
       for (const key of keyCandidates) {
         const p = new URLSearchParams(params);
@@ -279,6 +280,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
   const areaCode = subregion?.areaCode ?? preset?.areaCode ?? areaCodeByRegion[options.regionId];
   const sigunguCode = rawSignguCode;
   const arrange = options.sort === "latest" ? "C" : "A";
+  const tourApiBases = getTourApiBaseCandidates(options.locale);
 
   try {
     if (options.category === "events") {
@@ -326,7 +328,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
     for (const contentTypeId of contentTypeFallbackByCategory[options.category]) {
       params.set("contentTypeId", contentTypeId);
       try {
-        const result = await callTourApi(endpoint, params);
+        const result = await callTourApi(endpoint, params, tourApiBases);
         resolved = result;
         usedContentTypeId = contentTypeId;
         break;
