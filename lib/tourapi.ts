@@ -82,6 +82,26 @@ const contentTypeByCategory: Record<Category, string> = {
   events: "15"
 };
 
+const areaCodeByRegion: Record<string, string> = {
+  seoul: "1",
+  incheon: "2",
+  daejeon: "3",
+  daegu: "4",
+  gwangju: "5",
+  busan: "6",
+  ulsan: "7",
+  sejong: "8",
+  gyeonggi: "31",
+  gangwon: "32",
+  chungbuk: "33",
+  chungnam: "34",
+  gyeongbuk: "35",
+  gyeongnam: "36",
+  jeonbuk: "37",
+  jeonnam: "38",
+  jeju: "39"
+};
+
 function resolveTourApiKey() {
   return normalizeServiceKey(
     process.env.TOUR_API_KEY ??
@@ -256,6 +276,8 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
   const rawSignguCode = subregion?.sigunguCode ?? preset?.sigunguCode;
   const lDongSignguCd =
     rawSignguCode && /^\d{3}$/.test(rawSignguCode) ? rawSignguCode : undefined;
+  const areaCode = subregion?.areaCode ?? preset?.areaCode ?? areaCodeByRegion[options.regionId];
+  const sigunguCode = rawSignguCode;
   const arrange = options.sort === "latest" ? "C" : "A";
 
   try {
@@ -290,6 +312,8 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
 
     if (lDongRegnCd) params.set("lDongRegnCd", lDongRegnCd);
     if (lDongSignguCd) params.set("lDongSignguCd", lDongSignguCd);
+    if (areaCode) params.set("areaCode", areaCode);
+    if (sigunguCode) params.set("sigunguCode", sigunguCode);
 
     if (endpoint === "searchKeyword2") {
       params.set("keyword", subregion?.keywordKo ?? preset?.keywordKo ?? region.name_ko);
@@ -311,7 +335,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
       items: filtered,
       hasMore,
       source: "tourapi",
-      debug: `source:tourapi:${endpoint}:${lDongRegnCd ?? "none"}:${lDongSignguCd ?? "none"}`
+      debug: `source:tourapi:${endpoint}:${lDongRegnCd ?? "none"}:${lDongSignguCd ?? "none"}:${areaCode ?? "none"}:${sigunguCode ?? "none"}`
     };
   } catch (error) {
     const errorMessage =
