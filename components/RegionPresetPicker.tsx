@@ -1,16 +1,20 @@
 ﻿"use client";
 
+import { getExploreText } from "@/lib/explore-i18n";
 import { regionPresets } from "@/lib/presets";
 
 type Props = {
+  locale: "en" | "ko";
   selectedPresetId?: string;
   onSelectPreset: (presetId: string) => void;
 };
 
-export function RegionPresetPicker({ selectedPresetId, onSelectPreset }: Props) {
+export function RegionPresetPicker({ locale, selectedPresetId, onSelectPreset }: Props) {
+  const t = getExploreText(locale);
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-600">City Presets (15)</h2>
+      <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-600">{t.cityPresets}</h2>
       <div className="mt-3 flex flex-wrap gap-2">
         {regionPresets.map((preset) => {
           const isActive = preset.id === selectedPresetId;
@@ -25,7 +29,7 @@ export function RegionPresetPicker({ selectedPresetId, onSelectPreset }: Props) 
                   : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
               }`}
             >
-              {preset.nameEn}
+              {locale === "ko" ? preset.nameKo : preset.nameEn}
             </button>
           );
         })}

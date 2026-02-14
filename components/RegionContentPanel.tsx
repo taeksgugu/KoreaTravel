@@ -1,14 +1,8 @@
 ﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { getExploreText } from "@/lib/explore-i18n";
 import type { Category, EventStatus, NormalizedItem, RegionItemsResponse } from "@/lib/types";
-
-const tabs: { id: Category; label: string }[] = [
-  { id: "attractions", label: "Attractions" },
-  { id: "food", label: "Food" },
-  { id: "stay", label: "Stay" },
-  { id: "events", label: "Events" }
-];
 
 type Props = {
   locale: "en" | "ko";
@@ -27,6 +21,14 @@ export function RegionContentPanel({
   subregionName,
   presetId
 }: Props) {
+  const t = getExploreText(locale);
+  const tabs: { id: Category; label: string }[] = [
+    { id: "attractions", label: locale === "ko" ? "관광지" : "Attractions" },
+    { id: "food", label: locale === "ko" ? "맛집" : "Food" },
+    { id: "stay", label: locale === "ko" ? "숙박" : "Stay" },
+    { id: "events", label: locale === "ko" ? "행사" : "Events" }
+  ];
+
   const [category, setCategory] = useState<Category>("attractions");
   const [items, setItems] = useState<NormalizedItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -73,7 +75,7 @@ export function RegionContentPanel({
         setHasMore(payload.hasMore);
       } catch {
         if (ignore) return;
-        setError("Failed to load items. Please try again.");
+        setError(t.loadError);
       } finally {
         if (!ignore) setLoading(false);
       }
@@ -84,30 +86,30 @@ export function RegionContentPanel({
     return () => {
       ignore = true;
     };
-  }, [category, eventStatus, locale, page, presetId, regionId, sort, subregionId]);
+  }, [category, eventStatus, locale, page, presetId, regionId, sort, subregionId, t.loadError]);
 
   const headerTitle = useMemo(() => {
     const base = subregionName ? `${regionName} / ${subregionName}` : regionName;
-    return presetId ? `${base} (Preset Applied)` : base;
-  }, [presetId, regionName, subregionName]);
+    return presetId ? `${base} (${t.presetApplied})` : base;
+  }, [presetId, regionName, subregionName, t.presetApplied]);
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Selected Region</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{t.selectedRegion}</p>
           <h2 className="text-xl font-semibold text-slate-900">{headerTitle}</h2>
         </div>
 
         <label className="text-sm text-slate-700">
-          Sort
+          {t.sort}
           <select
             value={sort}
             onChange={(event) => setSort(event.target.value as "latest" | "title")}
             className="ml-2 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm"
           >
-            <option value="latest">Latest</option>
-            <option value="title">Title</option>
+            <option value="latest">{t.latest}</option>
+            <option value="title">{t.title}</option>
           </select>
         </label>
       </div>
@@ -115,15 +117,15 @@ export function RegionContentPanel({
       {category === "events" ? (
         <div className="mt-3">
           <label className="text-sm text-slate-700">
-            Event status
+            {t.eventStatus}
             <select
               value={eventStatus}
               onChange={(event) => setEventStatus(event.target.value as EventStatus)}
               className="ml-2 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm"
             >
-              <option value="all">All</option>
-              <option value="ongoing">Ongoing</option>
-              <option value="upcoming">Upcoming</option>
+              <option value="all">{t.all}</option>
+              <option value="ongoing">{t.ongoing}</option>
+              <option value="upcoming">{t.upcoming}</option>
             </select>
           </label>
         </div>
@@ -160,14 +162,14 @@ export function RegionContentPanel({
       {error ? <p className="mt-4 rounded-lg bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
 
       {!loading && !error && items.length === 0 ? (
-        <p className="mt-4 rounded-lg bg-slate-50 p-4 text-sm text-slate-600">No results for this region/category.</p>
+        <p className="mt-4 rounded-lg bg-slate-50 p-4 text-sm text-slate-600">{t.noResults}</p>
       ) : null}
 
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {items.map((item) => (
           <article key={item.id} className="rounded-xl border border-slate-200 p-3">
             <h3 className="text-base font-semibold text-slate-900">{item.title}</h3>
-            <p className="mt-1 text-sm text-slate-600">{item.addr || "Address unavailable"}</p>
+            <p className="mt-1 text-sm text-slate-600">{item.addr || t.addressUnavailable}</p>
             {item.overview ? <p className="mt-2 line-clamp-3 text-sm text-slate-700">{item.overview}</p> : null}
             {item.startDate ? (
               <p className="mt-2 text-xs text-slate-500">
@@ -185,7 +187,7 @@ export function RegionContentPanel({
                 rel="noreferrer"
                 className="rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
               >
-                Open in Google Maps
+                {t.openInGoogleMaps}
               </a>
               <a
                 href={`https://english.visitkorea.or.kr/svc/search/searchList.do?query=${encodeURIComponent(item.title)}`}
@@ -193,7 +195,7 @@ export function RegionContentPanel({
                 rel="noreferrer"
                 className="rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
               >
-                VisitKorea Search
+                {t.visitKoreaSearch}
               </a>
             </div>
           </article>
@@ -208,10 +210,11 @@ export function RegionContentPanel({
             disabled={loading}
             className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "Loading..." : "Load More"}
+            {loading ? t.loading : t.loadMore}
           </button>
         </div>
       ) : null}
     </section>
   );
 }
+

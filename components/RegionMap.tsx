@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import mapboxgl, { LngLatBoundsLike, Map } from "mapbox-gl";
+import { getExploreText } from "@/lib/explore-i18n";
 import { regionGeoJson } from "@/lib/region-geojson";
 import { subregionGeoJson } from "@/lib/subregions";
 import type { RegionFeatureProperties, SubregionFeatureProperties } from "@/lib/types";
 
 type Props = {
+  locale: "en" | "ko";
   selectedRegionId: string;
   selectedSubregionId?: string;
   onSelectRegion: (regionId: string) => void;
@@ -39,11 +41,13 @@ function getBoundsForFeature(
 }
 
 export function RegionMap({
+  locale,
   selectedRegionId,
   selectedSubregionId,
   onSelectRegion,
   onSelectSubregion
 }: Props) {
+  const t = getExploreText(locale);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
 
@@ -224,10 +228,11 @@ export function RegionMap({
   if (!mapboxToken) {
     return (
       <div className="flex h-[460px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">
-        Set NEXT_PUBLIC_MAPBOX_TOKEN in .env.local to enable interactive polygon map.
+        {t.mapTokenHint}
       </div>
     );
   }
 
   return <div ref={containerRef} className="h-[460px] w-full rounded-2xl border border-slate-200" />;
 }
+

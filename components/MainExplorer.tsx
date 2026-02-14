@@ -39,6 +39,7 @@ export function MainExplorer({ locale }: Props) {
   return (
     <div className="space-y-4">
       <RegionPresetPicker
+        locale={locale}
         selectedPresetId={selectedPresetId}
         onSelectPreset={(presetId) => {
           const preset = presetById[presetId];
@@ -60,6 +61,7 @@ export function MainExplorer({ locale }: Props) {
 
       <section className="grid gap-4 lg:grid-cols-[1fr_1.15fr]">
         <RegionMap
+          locale={locale}
           selectedRegionId={selectedRegionId}
           selectedSubregionId={selectedSubregionId}
           onSelectRegion={(regionId) => {
@@ -86,3 +88,4 @@ export function MainExplorer({ locale }: Props) {
     </div>
   );
 }
+
