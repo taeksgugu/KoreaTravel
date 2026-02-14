@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdSenseUnit } from "@/components/AdSenseUnit";
 import { KoreaMap } from "@/components/KoreaMap";
+import { ResultMapbox } from "@/components/ResultMapbox";
 import { adsenseSlots } from "@/lib/adsense";
 import { citiesBySlug } from "@/lib/data/cities";
 import type { RecommendationInput, RecommendationResult, CitySlug, UnsplashPhoto } from "@/lib/data/types";
@@ -128,12 +129,21 @@ export function ResultClient({ locale }: { locale: string }) {
         </div>
 
         <div className="space-y-4">
-          <KoreaMap
-            pins={pins}
-            activeSlug={hoveredSlug ?? undefined}
-            onHover={setHoveredSlug}
-            onSelect={(slug) => router.push(`/${locale}/city/${slug}`)}
-          />
+          {process.env.NEXT_PUBLIC_MAPBOX_TOKEN ? (
+            <ResultMapbox
+              pins={pins.map((pin) => ({ slug: pin.slug, rank: pin.rank, nameEn: pin.nameEn }))}
+              activeSlug={hoveredSlug ?? undefined}
+              onHover={setHoveredSlug}
+              onSelect={(slug) => router.push(`/${locale}/city/${slug}`)}
+            />
+          ) : (
+            <KoreaMap
+              pins={pins}
+              activeSlug={hoveredSlug ?? undefined}
+              onHover={setHoveredSlug}
+              onSelect={(slug) => router.push(`/${locale}/city/${slug}`)}
+            />
+          )}
 
           {previewCity && (
             <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">

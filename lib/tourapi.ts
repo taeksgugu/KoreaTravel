@@ -53,7 +53,15 @@ function filterEventsByStatus(items: NormalizedItem[], status: EventStatus): Nor
   });
 }
 
-const TOUR_API_BASE = process.env.TOUR_API_BASE_URL ?? "https://apis.data.go.kr/B551011/KorService1";
+const TOUR_API_BASE_CANDIDATES = Array.from(
+  new Set(
+    [
+      process.env.TOUR_API_BASE_URL,
+      "https://apis.data.go.kr/B551011/KorService1",
+      "https://apis.data.go.kr/B551011/EngService1"
+    ].filter((value): value is string => Boolean(value))
+  )
+);
 
 function normalizeServiceKey(rawKey: string | undefined): string | undefined {
   if (!rawKey) return undefined;
@@ -129,32 +137,63 @@ function normalizePublicFestivalItem(raw: Record<string, unknown>): NormalizedIt
 }
 
 async function callTourApi(endpoint: string, params: URLSearchParams) {
-  const response = await fetch(`${TOUR_API_BASE}/${endpoint}?${params.toString()}`, {
-    next: { revalidate: 900 }
-  });
+  const keyCandidates = Array.from(
+    new Set([params.get("serviceKey") ?? "", normalizeServiceKey(process.env.TOUR_API_KEY) ?? ""])
+  ).filter(Boolean);
+  const keyParamNames = ["serviceKey", "ServiceKey"] as const;
 
-  if (!response.ok) {
-    throw new Error(`TourAPI request failed: ${response.status}`);
+  let lastError = "tourapi:no_attempt";
+
+  for (const base of TOUR_API_BASE_CANDIDATES) {
+    for (const keyParam of keyParamNames) {
+      for (const key of keyCandidates) {
+        const p = new URLSearchParams(params);
+        p.delete("serviceKey");
+        p.delete("ServiceKey");
+        p.set(keyParam, key);
+
+        const response = await fetch(`${base}/${endpoint}?${p.toString()}`, {
+          next: { revalidate: 900 }
+        });
+
+        if (!response.ok) {
+          const body = (await response.text()).slice(0, 220).replace(/\s+/g, " ");
+          lastError = `tourapi_http_${response.status}:${base}:${keyParam}:${body}`;
+          continue;
+        }
+
+        const json = (await response.json()) as {
+          response?: {
+            header?: {
+              resultCode?: string;
+              resultMsg?: string;
+            };
+            body?: {
+              items?: {
+                item?: Record<string, unknown>[] | Record<string, unknown>;
+              };
+              totalCount?: number;
+            };
+          };
+        };
+
+        const resultCode = String(json.response?.header?.resultCode ?? "0000");
+        const resultMsg = String(json.response?.header?.resultMsg ?? "OK");
+        if (resultCode !== "0000") {
+          lastError = `tourapi_result_${resultCode}:${resultMsg}:${base}:${keyParam}`;
+          continue;
+        }
+
+        const itemNode = json.response?.body?.items?.item;
+        if (!itemNode) return { items: [], totalCount: 0 };
+        const items = Array.isArray(itemNode) ? itemNode : [itemNode];
+        const totalCount = Number(json.response?.body?.totalCount ?? items.length);
+        return { items, totalCount };
+      }
+    }
   }
 
-  const json = (await response.json()) as {
-    response?: {
-      body?: {
-        items?: {
-          item?: Record<string, unknown>[] | Record<string, unknown>;
-        };
-        totalCount?: number;
-      };
-    };
-  };
-
-  const itemNode = json.response?.body?.items?.item;
-  if (!itemNode) return { items: [], totalCount: 0 };
-
-  const items = Array.isArray(itemNode) ? itemNode : [itemNode];
-  const totalCount = Number(json.response?.body?.totalCount ?? items.length);
-
-  return { items, totalCount };
+  throw new Error(lastError);
 }
 
 async function fetchPublicFestival(options: FetchOptions): Promise<NormalizedItem[] | null> {
@@ -272,7 +311,9 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
     const hasMore = options.page * options.pageSize < totalCount;
 
     return { items: filtered, hasMore, source: "tourapi", debug: "source:tourapi" };
-  } catch {
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message.slice(0, 220) : "unknown_tourapi_error";
     const mock = createMockItems(region.name_en, options.category, options.page, options.pageSize);
     return {
       items:
@@ -281,7 +322,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
           : mock.items,
       hasMore: mock.hasMore,
       source: "mock",
-      debug: "mock_reason:tourapi_request_failed"
+      debug: `mock_reason:tourapi_request_failed:${errorMessage}`
     };
   }
 }
