@@ -1,32 +1,9 @@
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import { LocaleNav } from "@/components/LocaleNav";
-import { isLocale, locales } from "@/lib/i18n";
-import { siteConfig, supportedLocales } from "@/lib/site";
-
-export async function generateMetadata({
-  params
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  if (!isLocale(locale)) {
-    return {};
-  }
-
-  return {
-    title: "KoreaTravel",
-    alternates: {
-      canonical: `/${locale}`,
-      languages: Object.fromEntries(
-        supportedLocales.map((item) => [item, `${siteConfig.siteUrl}/${item}`])
-      )
-    }
-  };
-}
+import { isLocale } from "@/lib/locales";
 
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return [{ locale: "en" }, { locale: "ko" }];
 }
 
 export default async function LocaleLayout({
@@ -37,14 +14,20 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  if (!isLocale(locale)) {
-    notFound();
-  }
+  if (!isLocale(locale)) notFound();
 
   return (
-    <div className="min-h-screen pb-10">
-      <LocaleNav locale={locale} />
-      <main className="mx-auto w-full max-w-6xl px-4">{children}</main>
+    <div className="min-h-screen bg-slate-50">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+          <h1 className="text-lg font-semibold text-slate-900">Korea Travel</h1>
+          <nav className="flex gap-3 text-sm">
+            <Link href="/en" className={locale === "en" ? "font-semibold text-teal-700" : "text-slate-600"}>EN</Link>
+            <Link href="/ko" className={locale === "ko" ? "font-semibold text-teal-700" : "text-slate-600"}>KO</Link>
+          </nav>
+        </div>
+      </header>
+      <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
     </div>
   );
 }

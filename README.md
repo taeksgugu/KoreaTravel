@@ -1,164 +1,167 @@
-# KoreaTravel (K-Travel Type)
+﻿# Korea Travel (Map + Regional Content Explorer)
 
-English-first web application for international travelers entering via Incheon (ICN), with a visual quiz and city recommendation engine.
+Korea Travel is a Next.js web app that follows a "map interaction + below list" pattern.
+Users click Korean administrative regions on the map and load local travel content by category:
+- Attractions
+- Food
+- Stay
+- Events
+
+The app is designed so the map layer can be replaced later (for example, with a custom SVG illustration) without rewriting list/data logic.
 
 ## Stack
 
-- Next.js App Router
-- TypeScript
-- Edge-compatible API routes
+- Next.js (App Router) + TypeScript (strict)
 - Tailwind CSS
-- Unsplash API proxy
+- Mapbox GL JS (client-side map)
+- Next.js Route Handlers for server API
+- Cloudflare-friendly serverless structure
 
-## Core Features
+## Core Architecture
 
-- 10-question visual travel personality quiz (Unsplash image options)
-- Travel details input (group, driving, Korean level, duration, budget)
-- Server-side recommendation engine with strict weighted scoring and synergy bonuses
-- Top 3 city results with ranked custom SVG map pins
-- Hover preview with Unsplash photos and required photographer credit links
-- Detailed city itinerary pages (3-4 / 5-6 / 7+ day plans)
-- K-Drama filming city guide (Google Maps links only)
-- Restaurant finder (Google Maps search links only)
-- i18n routes (`/en`, `/ko`) with English default redirect
+- `components/RegionMap.tsx`
+  - Handles only map rendering and region selection events.
+- `components/RegionContentPanel.tsx`
+  - Handles category tabs, loading states, pagination, sorting, and API calls.
+- `app/api/regions/[regionId]/items/route.ts`
+  - Server-side proxy to TourAPI.
+  - Normalizes data and returns consistent schema.
 
-## Project Structure
+This separation allows map replacement without changing server/data panel logic.
 
-- `app/[locale]/page.tsx`
-- `app/[locale]/quiz/page.tsx`
-- `app/[locale]/details/page.tsx`
-- `app/[locale]/result/page.tsx`
-- `app/[locale]/city/[slug]/page.tsx`
-- `app/[locale]/drama/page.tsx`
-- `app/[locale]/restaurants/page.tsx`
-- `app/api/recommend/route.ts`
-- `app/api/images/route.ts`
-- `lib/recommendationEngine/engine.ts`
-- `lib/data/*.ts`
-- `components/*.tsx`
-- `public/korea.svg`
+## Features Implemented
 
-## Setup
+1. Region map (MVP: 17 provinces/cities)
+- GeoJSON at `data/regions/sido.geojson`
+- Feature properties: `region_id`, `name_ko`, `name_en`, `admin_code`
+- Hover highlight via cursor and click selection state
+- `fitBounds` on selected polygon
 
-1. Install dependencies:
+2. Regional content panel
+- Tabs: `Attractions`, `Food`, `Stay`, `Events`
+- Skeleton loading, error state, empty state
+- Pagination with `Load More`
+- Sorting: `Latest`, `Title`
+
+3. Server API
+- Endpoint:
+  - `/api/regions/[regionId]/items?category=attractions|food|stay|events&page=1&pageSize=10&sort=latest&presetId=...`
+- TourAPI call only on server side
+- Response normalized to:
+  - `id`, `title`, `category`, `addr`, `mapx`, `mapy`, `firstImage`, `tel`, `overview`, `startDate`, `endDate`
+- In-memory cache per request key for 15 minutes
+- Cache headers for CDN friendliness
+
+4. Presets (15 requested cities)
+- `lib/presets.ts`
+- Supports:
+  - Seoul, Busan, Jeju, Incheon, Chuncheon, Gangneung, Sokcho, Jeonju, Gyeongju,
+    Namhae, Damyang, Daegu, Andong, Yeosu, Boryeong
+- Current strategy: preset applies region + keyword-focused query (MVP without full sigungu polygons)
+
+## Drill-down Strategy
+
+Current implementation uses **Preset-based subregion targeting** for city/county-level destinations.
+
+Why:
+- Stable MVP with clear UX and low API failure risk
+- Keeps map/list architecture clean
+- Ready for step-2 drill-down expansion
+
+Step-2 extension path:
+- Add `data/regions/sigungu/*.geojson`
+- Implement province -> sigungu polygon drill-down in `RegionMap`
+- Keep `RegionContentPanel` and API contract unchanged
+
+## Environment Variables
+
+Create `.env.local` from `.env.example`.
+
+Required:
+- `NEXT_PUBLIC_MAPBOX_TOKEN`
+- `TOUR_API_KEY`
+
+Optional:
+- `PUBLIC_DATA_API_KEY`
+- `PUBLIC_FESTIVAL_API_ENDPOINT`
+
+If `TOUR_API_KEY` is missing, API falls back to mock content.
+
+## Run Locally
 
 ```bash
 npm install
-```
-
-2. Configure environment:
-
-```bash
-cp .env.example .env.local
-```
-
-Set:
-
-```env
-UNSPLASH_ACCESS_KEY=your_unsplash_access_key
-NEXT_PUBLIC_SITE_URL=https://visitkoreaguide.org
-NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-3946429838788366
-NEXT_PUBLIC_ADSENSE_SLOT_HOME=1234567890
-NEXT_PUBLIC_ADSENSE_SLOT_RESULT=2345678901
-NEXT_PUBLIC_ADSENSE_SLOT_CITY=3456789012
-```
-
-3. Run development server:
-
-```bash
 npm run dev
 ```
 
-4. Type check:
+Type check:
 
 ```bash
 npm run typecheck
 ```
 
-## Recommendation Formula
+Build:
 
-Implemented server-side in `app/api/recommend` and `lib/recommendationEngine/engine.ts`.
+```bash
+npm run build
+```
 
-`FinalScore = (BaseScore + SynergyBonus) * DrivingMultiplier * LanguageMultiplier * DurationMultiplier * GroupMultiplier`
+Cloudflare build:
 
-- Quiz option to tag score: `+8` each
-- Synergy threshold: both tags `>= 20`
-- Driving, language, duration, and group multipliers follow the provided specification
-- Top 3 results sorted by `FinalScore`
-
-## Legal/Data Safety
-
-- No scraping from Instagram, Naver, blogs, or review sites
-- No copied Google reviews
-- Images are requested through Unsplash API proxy only
-- Every shown image includes photographer credit + profile link
-- K-Drama page uses text and links only (no copyrighted screenshots)
-- Restaurants page provides Google Maps search links only
-- All descriptions are original text
-
-## SEO Baseline
-
-The project includes SEO essentials aligned with Google's starter guidance:
-- Clear page titles and page descriptions for key routes
-- Canonical and alternate-language metadata for locale routes
-- `robots.txt` via `app/robots.ts`
-- `sitemap.xml` via `app/sitemap.ts`
-- Structured data (JSON-LD `WebSite`) on locale homepage
-- Crawl-friendly internal links and semantic heading structure
-
-## GEO / AI Search Enhancements
-
-Aligned with Google's AI Search guidance (May 21, 2025):
-- Stronger preview controls via `robots` metadata (`max-snippet`, `max-image-preview`, `max-video-preview`)
-- Structured data expanded only where visible content exists (FAQ, destination, breadcrumb, collection page)
-- FAQ sections added to key pages to improve long-tail and follow-up query coverage
-- Multimodal support improved with descriptive image `alt` text and explicit image dimensions
-- `app/llms.txt/route.ts` added as an AI crawler discovery aid
-
-## Google AdSense
-
-AdSense integration is enabled with:
-- Global AdSense script + account meta tag in `app/layout.tsx`
-- Reusable ad unit component in `components/AdSenseUnit.tsx`
-- Placement in high-intent pages only (home/result/city) to avoid ad-heavy layouts
-- Explicit `Sponsored` label for ad blocks
-- `public/ads.txt` placeholder file (replace `pub-xxxxxxxxxxxxxxxx` with your publisher ID)
-
-Quality policy choices in this project:
-- Keep primary travel content as the main focus, ads are secondary
-- Avoid deceptive ad placement near critical navigation/actions
-- Keep ad count moderate per page and preserve readability
-
-## Cloudflare Deployment (Workers Builds)
-
-This repository is configured for Cloudflare Workers deployment using OpenNext.
-
-Required files:
-- `wrangler.toml`
-- `open-next.config.ts`
-
-Recommended Cloudflare build settings:
-
-1. Build command:
 ```bash
 npm run build:cf
 ```
-`build:cf` clears `.next` and `.open-next` first to avoid stale cache artifacts in CI.
 
-2. Deploy command:
-```bash
-npm run deploy
+## GeoJSON Data Source / Update Guide
+
+MVP uses `sido`-level polygons in `data/regions/sido.geojson`.
+
+For production-quality boundaries:
+1. Obtain official SHP/GeoJSON boundary data
+2. Convert SHP -> GeoJSON using GDAL/ogr2ogr
+3. Simplify geometry if needed for web performance
+4. Ensure each feature includes required fields:
+   - `region_id`, `name_ko`, `name_en`, `admin_code`
+
+## TourAPI Key Guide
+
+1. Issue TourAPI key from data.go.kr / Korea Tourism API portal
+2. Put the key in `.env.local` as `TOUR_API_KEY`
+3. Keep key server-side only (never expose in client)
+
+## Cloudflare Deployment Notes
+
+- Use server-side API route proxy (`/api/regions/...`) only
+- Keep secrets in Cloudflare environment variables
+- Use existing scripts:
+  - `npm run build:cf`
+  - `npm run deploy`
+
+## API Response Example
+
+```json
+{
+  "regionId": "seoul",
+  "category": "food",
+  "page": 1,
+  "pageSize": 10,
+  "hasMore": true,
+  "items": [
+    {
+      "id": "12345",
+      "title": "Sample Place",
+      "category": "food",
+      "addr": "Seoul ...",
+      "mapx": 126.97,
+      "mapy": 37.56,
+      "firstImage": null,
+      "tel": null,
+      "overview": null,
+      "startDate": null,
+      "endDate": null,
+      "source": "tourapi"
+    }
+  ]
+}
 ```
 
-3. Environment variables / secrets:
-- `UNSPLASH_ACCESS_KEY` (required for image proxy route)
-
-Notes:
-- `npm run build` is plain Next.js build for local verification.
-- Use `npm run build:cf` before `wrangler deploy` so `.open-next/worker.js` is generated.
-- OpenNext build is best run in Linux (Cloudflare CI environment is Linux).
-
-## GitHub
-
-Target repo:
-`https://github.com/taeksgugu/KoreaTravel`
