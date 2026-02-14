@@ -28,6 +28,14 @@ function unique(values: string[]): string[] {
   return Array.from(new Set(values.filter((value) => value.length > 0)));
 }
 
+function hashString(input: string): number {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
+
 function parseItems(data: TourPhotoResponse): TourPhotoItem[] {
   const rawItem = data.response?.body?.items?.item;
   if (Array.isArray(rawItem)) return rawItem;
@@ -64,6 +72,9 @@ export async function GET(request: Request) {
     "https://apis.data.go.kr/B551011/PhotoGalleryService1/galleryList1",
     "https://apis.data.go.kr/B551011/PhotoGalleryService/galleryList"
   ];
+  const queryHash = hashString(query);
+  const fallbackPageNo = String((queryHash % 20) + 1);
+  const fallbackRows = String(Math.max(count, 10));
   const commonParams = {
     numOfRows: String(count),
     pageNo: "1",
@@ -106,13 +117,17 @@ export async function GET(request: Request) {
     for (const endpointUrl of listEndpointCandidates) {
       for (const keyName of keyParamCandidates) {
         for (const serviceKey of keyCandidates) {
-          const listEndpoint = new URL(endpointUrl);
-          for (const [paramKey, value] of Object.entries(commonParams)) {
-            listEndpoint.searchParams.set(paramKey, value);
-          }
-          listEndpoint.searchParams.set(keyName, serviceKey);
+        const listEndpoint = new URL(endpointUrl);
+        for (const [paramKey, value] of Object.entries({
+          ...commonParams,
+          numOfRows: fallbackRows,
+          pageNo: fallbackPageNo
+        })) {
+          listEndpoint.searchParams.set(paramKey, value);
+        }
+        listEndpoint.searchParams.set(keyName, serviceKey);
 
-          const listResponse = await fetch(listEndpoint.toString(), { next: { revalidate: 3600 } });
+        const listResponse = await fetch(listEndpoint.toString(), { next: { revalidate: 3600 } });
           if (listResponse.ok) {
             const listData = (await listResponse.json()) as TourPhotoResponse;
             items = parseItems(listData);
@@ -147,8 +162,13 @@ export async function GET(request: Request) {
     }))
     .filter((photo) => photo.url.length > 0);
 
+  const orderedPhotos =
+    photos.length <= count
+      ? photos
+      : Array.from({ length: count }, (_, idx) => photos[(queryHash + idx) % photos.length]);
+
   return Response.json(
-    { photos },
+    { photos: orderedPhotos },
     {
       headers: {
         "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400"

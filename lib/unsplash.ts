@@ -28,6 +28,14 @@ function unique(values: string[]): string[] {
   return Array.from(new Set(values.filter((value) => value.length > 0)));
 }
 
+function hashString(input: string): number {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
+
 function parseItems(data: TourPhotoResponse): TourPhotoItem[] {
   const rawItem = data.response?.body?.items?.item;
   if (Array.isArray(rawItem)) return rawItem;
@@ -53,6 +61,8 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
       "https://apis.data.go.kr/B551011/PhotoGalleryService1/galleryList1",
       "https://apis.data.go.kr/B551011/PhotoGalleryService/galleryList"
     ];
+    const queryHash = hashString(query);
+    const fallbackPageNo = String((queryHash % 20) + 1);
     const commonParams = {
       numOfRows: "1",
       pageNo: "1",
@@ -92,7 +102,11 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
         for (const keyName of keyParamCandidates) {
           for (const serviceKey of keyCandidates) {
             const listEndpoint = new URL(endpointUrl);
-            for (const [paramKey, value] of Object.entries(commonParams)) {
+            for (const [paramKey, value] of Object.entries({
+              ...commonParams,
+              numOfRows: "10",
+              pageNo: fallbackPageNo
+            })) {
               listEndpoint.searchParams.set(paramKey, value);
             }
             listEndpoint.searchParams.set(keyName, serviceKey);
@@ -112,7 +126,7 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
       }
     }
 
-    const item = items[0];
+    const item = items.length ? items[queryHash % items.length] : undefined;
     if (!item?.galWebImageUrl) {
       return null;
     }
