@@ -45,6 +45,14 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
     const rawTrimmed = rawKey?.trim() ?? "";
     const keyCandidates = unique([key, rawTrimmed]);
     const keyParamCandidates = ["serviceKey", "ServiceKey"] as const;
+    const searchEndpointCandidates = [
+      "https://apis.data.go.kr/B551011/PhotoGalleryService1/gallerySearchList1",
+      "https://apis.data.go.kr/B551011/PhotoGalleryService/gallerySearchList"
+    ];
+    const listEndpointCandidates = [
+      "https://apis.data.go.kr/B551011/PhotoGalleryService1/galleryList1",
+      "https://apis.data.go.kr/B551011/PhotoGalleryService/galleryList"
+    ];
     const commonParams = {
       numOfRows: "1",
       pageNo: "1",
@@ -55,43 +63,49 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
     };
 
     let items: TourPhotoItem[] = [];
-    for (const keyName of keyParamCandidates) {
-      for (const serviceKey of keyCandidates) {
-        const searchEndpoint = new URL("https://apis.data.go.kr/B551011/PhotoGalleryService/gallerySearchList");
-        for (const [paramKey, value] of Object.entries(commonParams)) {
-          searchEndpoint.searchParams.set(paramKey, value);
+    for (const endpointUrl of searchEndpointCandidates) {
+      for (const keyName of keyParamCandidates) {
+        for (const serviceKey of keyCandidates) {
+          const searchEndpoint = new URL(endpointUrl);
+          for (const [paramKey, value] of Object.entries(commonParams)) {
+            searchEndpoint.searchParams.set(paramKey, value);
+          }
+          searchEndpoint.searchParams.set(keyName, serviceKey);
+          searchEndpoint.searchParams.set("galSearchKeyword", query);
+
+          const response = await fetch(searchEndpoint.toString(), {
+            next: { revalidate: 3600 }
+          });
+
+          if (!response.ok) continue;
+          const data = (await response.json()) as TourPhotoResponse;
+          items = parseItems(data);
+          if (items.length) break;
         }
-        searchEndpoint.searchParams.set(keyName, serviceKey);
-        searchEndpoint.searchParams.set("galSearchKeyword", query);
-
-        const response = await fetch(searchEndpoint.toString(), {
-          next: { revalidate: 3600 }
-        });
-
-        if (!response.ok) continue;
-        const data = (await response.json()) as TourPhotoResponse;
-        items = parseItems(data);
         if (items.length) break;
       }
       if (items.length) break;
     }
 
     if (!items.length) {
-      for (const keyName of keyParamCandidates) {
-        for (const serviceKey of keyCandidates) {
-          const listEndpoint = new URL("https://apis.data.go.kr/B551011/PhotoGalleryService/galleryList");
-          for (const [paramKey, value] of Object.entries(commonParams)) {
-            listEndpoint.searchParams.set(paramKey, value);
+      for (const endpointUrl of listEndpointCandidates) {
+        for (const keyName of keyParamCandidates) {
+          for (const serviceKey of keyCandidates) {
+            const listEndpoint = new URL(endpointUrl);
+            for (const [paramKey, value] of Object.entries(commonParams)) {
+              listEndpoint.searchParams.set(paramKey, value);
+            }
+            listEndpoint.searchParams.set(keyName, serviceKey);
+
+            const listResponse = await fetch(listEndpoint.toString(), {
+              next: { revalidate: 3600 }
+            });
+            if (!listResponse.ok) continue;
+
+            const listData = (await listResponse.json()) as TourPhotoResponse;
+            items = parseItems(listData);
+            if (items.length) break;
           }
-          listEndpoint.searchParams.set(keyName, serviceKey);
-
-          const listResponse = await fetch(listEndpoint.toString(), {
-            next: { revalidate: 3600 }
-          });
-          if (!listResponse.ok) continue;
-
-          const listData = (await listResponse.json()) as TourPhotoResponse;
-          items = parseItems(listData);
           if (items.length) break;
         }
         if (items.length) break;
