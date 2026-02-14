@@ -200,13 +200,16 @@ export async function fetchUnsplashPhoto(query: string): Promise<UnsplashPhoto |
     const ranked = items.sort(
       (a, b) => relevanceScore(b, keywordCandidates) - relevanceScore(a, keywordCandidates)
     );
-    const item = ranked.length ? ranked[queryHash % ranked.length] : undefined;
-    if (!item?.galWebImageUrl) {
+    const withImage = ranked.filter(
+      (item) => typeof item.galWebImageUrl === "string" && item.galWebImageUrl.trim().length > 0
+    );
+    const item = withImage.length ? withImage[queryHash % withImage.length] : undefined;
+    if (!item) {
       return null;
     }
 
     return {
-      url: item.galWebImageUrl,
+      url: item.galWebImageUrl!,
       photographer: item.galPhotographer ?? "Korea Tourism Organization",
       photographerLink: "https://phoko.visitkorea.or.kr"
     };
