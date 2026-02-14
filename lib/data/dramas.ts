@@ -19,7 +19,7 @@ export interface DramaItem {
 export const dramaItems: DramaItem[] = [
   {
     title: "Goblin (Guardian: The Lonely and Great God)",
-    koreanTitle: "도깨비",
+    koreanTitle: "\uB3C4\uAE68\uBE44",
     trailerUrl: "https://www.youtube.com/watch?v=S94ukM8C17A",
     trailerLabel: "Official Trailer (YouTube)",
     description:
@@ -40,7 +40,7 @@ export const dramaItems: DramaItem[] = [
   },
   {
     title: "Crash Landing on You",
-    koreanTitle: "사랑의 불시착",
+    koreanTitle: "\uC0AC\uB791\uC758 \uBD88\uC2DC\uCC29",
     trailerUrl: "https://www.youtube.com/watch?v=eXMjTXL2Vks",
     trailerLabel: "Official Trailer (Netflix)",
     description:
@@ -61,7 +61,7 @@ export const dramaItems: DramaItem[] = [
   },
   {
     title: "Mr. Sunshine",
-    koreanTitle: "미스터 션샤인",
+    koreanTitle: "\uBBF8\uC2A4\uD130 \uC158\uC0E4\uC778",
     trailerUrl: "https://www.youtube.com/watch?v=1TkdeD8wfQM",
     trailerLabel: "Official Trailer",
     description:
@@ -82,7 +82,7 @@ export const dramaItems: DramaItem[] = [
   },
   {
     title: "Extraordinary Attorney Woo",
-    koreanTitle: "이상한 변호사 우영우",
+    koreanTitle: "\uC774\uC0C1\uD55C \uBCC0\uD638\uC0AC \uC6B0\uC601\uC6B0",
     trailerUrl: "https://www.youtube.com/watch?v=9SdYFYflVbw",
     trailerLabel: "Official Trailer (Netflix)",
     description:
@@ -103,9 +103,9 @@ export const dramaItems: DramaItem[] = [
   },
   {
     title: "Our Blues",
-    koreanTitle: "우리들의 블루스",
-    trailerUrl: "https://www.youtube.com/watch?v=JkQzv-3oM9Y",
-    trailerLabel: "Official Trailer",
+    koreanTitle: "\uC6B0\uB9AC\uB4E4\uC758 \uBE14\uB8E8\uC2A4",
+    trailerUrl: "https://www.youtube.com/watch?v=x3uwMzHieNQ",
+    trailerLabel: "Official Teaser (CJ ENM / tvN)",
     description:
       "An omnibus-style drama about intertwined lives on Jeju Island, known for emotional storytelling and ocean landscapes.",
     filmingCities: ["jeju"],
@@ -124,9 +124,9 @@ export const dramaItems: DramaItem[] = [
   },
   {
     title: "Love in the Moonlight",
-    koreanTitle: "구르미 그린 달빛",
-    trailerUrl: "https://www.youtube.com/watch?v=J9uH8cWvU8U",
-    trailerLabel: "Official Trailer",
+    koreanTitle: "\uAD6C\uB974\uBBF8 \uADF8\uB9B0 \uB2EC\uBE5B",
+    trailerUrl: "https://www.youtube.com/watch?v=ej7lhHnFYEI",
+    trailerLabel: "Teaser (KBS WORLD TV)",
     description:
       "A Joseon-era romance between a crown prince and a woman disguised as a eunuch, with charming palace-era backdrops.",
     filmingCities: ["seoul", "jeonju"],
@@ -145,7 +145,7 @@ export const dramaItems: DramaItem[] = [
   },
   {
     title: "Itaewon Class",
-    koreanTitle: "이태원 클라쓰",
+    koreanTitle: "\uC774\uD0DC\uC6D0 \uD074\uB77C\uC4F0",
     trailerUrl: "https://www.youtube.com/watch?v=NeaHNQJ1kCo",
     trailerLabel: "Official Trailer (Netflix)",
     description:
@@ -166,8 +166,9 @@ export const dramaItems: DramaItem[] = [
   },
   {
     title: "Can This Love Be Translated?",
-    koreanTitle: "이 사랑도 통역되나요",
-    trailerLabel: "Official Teaser (to be updated)",
+    koreanTitle: "\uC774 \uC0AC\uB791\uB3C4 \uD1B5\uC5ED\uB418\uB098\uC694",
+    trailerUrl: "https://www.youtube.com/watch?v=tNZG1aLBATY",
+    trailerLabel: "Official Trailer (Netflix)",
     description:
       "A romantic story between a global star and her interpreter, featuring stylish urban and cultural settings.",
     filmingCities: ["seoul"],
