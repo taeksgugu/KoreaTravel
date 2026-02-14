@@ -41,10 +41,25 @@ export default async function DramaPage({
   }
 
   const dramaVisuals = await Promise.all(
-    dramaItems.map(async (drama) => ({
-      title: drama.title,
-      photo: await fetchUnsplashPhoto(drama.visualQuery).catch(() => null)
-    }))
+    dramaItems.map(async (drama) => {
+      const firstCity = citiesBySlug[drama.filmingCities[0]];
+      const candidates = [
+        drama.visualQuery,
+        `${drama.title} Korea travel`,
+        firstCity?.unsplashQuery ?? ""
+      ].filter((value) => value.length > 0);
+
+      let photo = null;
+      for (const candidate of candidates) {
+        photo = await fetchUnsplashPhoto(candidate).catch(() => null);
+        if (photo?.url) break;
+      }
+
+      return {
+        title: drama.title,
+        photo
+      };
+    })
   );
   const visualByTitle = Object.fromEntries(
     dramaVisuals.map((item) => [item.title, item.photo])
@@ -71,7 +86,7 @@ export default async function DramaPage({
                 />
               ) : (
                 <div className="flex h-40 items-center justify-center rounded-xl bg-slate-100 text-sm text-slate-500">
-                  Image available after Tour Photo API key setup
+                  No matching tourism photo found
                 </div>
               )}
               {visualByTitle[drama.title]?.photographer ? (
