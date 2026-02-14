@@ -49,9 +49,50 @@ export default async function DramaPage({
   const visualByTitle = Object.fromEntries(
     dramaVisuals.map((item) => [item.title, item.photo])
   ) as Record<string, Awaited<ReturnType<typeof fetchUnsplashPhoto>>>;
+  const dramaCollectionJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "K-Drama Filming City Guide",
+    url: `${siteConfig.siteUrl}/${locale}/drama`,
+    inLanguage: locale,
+    hasPart: dramaItems.map((drama) => ({
+      "@type": "CreativeWork",
+      name: drama.title,
+      about: drama.filmingCities.map((slug) => citiesBySlug[slug].nameEn),
+      url: `https://www.google.com/maps/search/${encodeURIComponent(`${drama.title} filming locations Korea`)}`
+    }))
+  };
+  const breadcrumbsJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${siteConfig.siteUrl}/${locale}`
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "K-Drama Guide",
+        item: `${siteConfig.siteUrl}/${locale}/drama`
+      }
+    ]
+  };
 
   return (
     <section className="space-y-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(dramaCollectionJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }}
+      />
       <header>
         <h1 className="text-3xl font-semibold text-slate-900">K-Drama Filming City Guide</h1>
         <p className="mt-2 text-slate-700">
@@ -67,6 +108,10 @@ export default async function DramaPage({
                 <img
                   src={visualByTitle[drama.title]?.url}
                   alt={`${drama.title} mood visual`}
+                  loading="lazy"
+                  decoding="async"
+                  width={960}
+                  height={640}
                   className="h-40 w-full rounded-xl object-cover"
                 />
               ) : (

@@ -47,9 +47,74 @@ export default async function CityPage({
   if (!city) {
     notFound();
   }
+  const cityPageUrl = `${siteConfig.siteUrl}/${locale}/city/${city.slug}`;
+  const cityJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TouristDestination",
+    name: `${city.nameEn} (${city.nameKo})`,
+    description: city.summary,
+    url: cityPageUrl,
+    touristType: city.tags.join(", "),
+    isAccessibleForFree: true
+  };
+  const breadcrumbsJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${siteConfig.siteUrl}/${locale}`
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "City Guide",
+        item: cityPageUrl
+      }
+    ]
+  };
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: `How do I get to ${city.nameEn} from ICN?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: city.fromIcn
+        }
+      },
+      {
+        "@type": "Question",
+        name: `How should I move around ${city.nameEn}?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: city.transport
+        }
+      }
+    ]
+  };
 
   return (
     <div className="space-y-6">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(cityJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <section className="space-y-6">
         <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">City Guide</p>
@@ -98,6 +163,20 @@ export default async function CityPage({
             <p className="mt-3 text-sm text-slate-700">{city.transport}</p>
           </article>
         </div>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">FAQ</h2>
+          <div className="mt-3 space-y-3 text-sm text-slate-700">
+            <article>
+              <h3 className="font-semibold text-slate-900">How do I get to {city.nameEn} from ICN?</h3>
+              <p className="mt-1">{city.fromIcn}</p>
+            </article>
+            <article>
+              <h3 className="font-semibold text-slate-900">How should I move around {city.nameEn}?</h3>
+              <p className="mt-1">{city.transport}</p>
+            </article>
+          </div>
+        </section>
 
         <div className="flex flex-wrap gap-3 pb-8">
           <Link href={`/${locale}/result`} className="rounded-full border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50">

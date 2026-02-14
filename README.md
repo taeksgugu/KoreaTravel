@@ -106,6 +106,15 @@ The project includes SEO essentials aligned with Google's starter guidance:
 - Structured data (JSON-LD `WebSite`) on locale homepage
 - Crawl-friendly internal links and semantic heading structure
 
+## GEO / AI Search Enhancements
+
+Aligned with Google's AI Search guidance (May 21, 2025):
+- Stronger preview controls via `robots` metadata (`max-snippet`, `max-image-preview`, `max-video-preview`)
+- Structured data expanded only where visible content exists (FAQ, destination, breadcrumb, collection page)
+- FAQ sections added to key pages to improve long-tail and follow-up query coverage
+- Multimodal support improved with descriptive image `alt` text and explicit image dimensions
+- `app/llms.txt/route.ts` added as an AI crawler discovery aid
+
 ## Google AdSense
 
 AdSense integration is enabled with:

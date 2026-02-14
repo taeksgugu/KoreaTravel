@@ -13,9 +13,9 @@ export async function generateMetadata({
   if (!isLocale(locale)) return {};
 
   return {
-    title: "Korea Restaurant Categories",
+    title: "Korea Restaurant Guide by City and Food Category",
     description:
-      "Browse city-based food categories and open targeted Google Maps searches.",
+      "Explore city-based Korean food categories and open focused Google Maps searches for each local cuisine type.",
     alternates: {
       canonical: `/${locale}/restaurants`,
       languages: Object.fromEntries(

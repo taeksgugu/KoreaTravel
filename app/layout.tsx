@@ -30,6 +30,17 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1
+    }
+  },
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",
