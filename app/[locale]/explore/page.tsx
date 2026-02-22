@@ -33,14 +33,9 @@ export default async function ExplorePage({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const t = getExploreText(locale);
 
   return (
-    <div className="space-y-4">
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h1 className="text-2xl font-semibold text-slate-900">{t.heading}</h1>
-        <p className="mt-2 text-sm text-slate-700">{t.description}</p>
-      </section>
+    <div className="space-y-4 pb-2">
       <MainExplorer locale={locale} />
     </div>
   );

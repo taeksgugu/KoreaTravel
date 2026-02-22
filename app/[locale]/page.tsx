@@ -58,40 +58,62 @@ export default async function LocaleHome({
         suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
       />
-      <section className="grid gap-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm lg:grid-cols-[1.1fr_0.9fr] lg:p-12">
-        <div className="space-y-5">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">K-Travel Type</p>
-          <h1 className="text-4xl font-semibold leading-tight text-slate-900">{text.brand}</h1>
-          <p className="max-w-xl text-lg text-slate-700">{text.subtitle}</p>
-          <div className="flex flex-wrap gap-3 pt-2">
-            <Link
-              href={`/${locale}/quiz`}
-              className="rounded-full bg-emerald-700 px-5 py-3 font-medium text-white hover:bg-emerald-800"
-            >
-              {text.takeQuiz}
-            </Link>
-            <Link
-              href={`/${locale}/explore`}
-              className="rounded-full border border-slate-300 px-5 py-3 font-medium text-slate-800 hover:bg-slate-50"
-            >
-              Explore by Region Map
-            </Link>
-            <Link
-              href={`/${locale}/drama`}
-              className="rounded-full border border-slate-300 px-5 py-3 font-medium text-slate-800 hover:bg-slate-50"
-            >
-              {text.drama}
-            </Link>
+      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-900 shadow-sm">
+        <img
+          src="https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=80"
+          alt="Korea palace at dusk"
+          className="h-[420px] w-full object-cover opacity-80"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6">
+          <div className="mt-40 space-y-3">
+            <p className="inline-flex rounded-full bg-blue-700 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-white">
+              Welcome to Korea
+            </p>
+            <h1 className="text-5xl font-extrabold leading-tight text-white">{text.brand}</h1>
+            <p className="text-base text-slate-100">{text.subtitle}</p>
           </div>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-          <h2 className="mb-4 text-xl font-semibold text-slate-900">How it works</h2>
-          <ol className="list-decimal space-y-2 pl-5 text-slate-700">
-            <li>Take a 10-question visual quiz.</li>
-            <li>Add your group, driving plan, Korean level, duration, and budget.</li>
-            <li>Get your top 3 Korean cities with map-based previews.</li>
-            <li>Open full city itineraries, drama spots, and food guides.</li>
-          </ol>
+      </section>
+      <section className="rounded-3xl border border-blue-200 bg-blue-50 p-5">
+        <h2 className="text-3xl font-bold text-blue-800">Find your travel style</h2>
+        <p className="mt-2 text-slate-700">Take our 1-minute quiz for personalized picks.</p>
+        <Link
+          href={`/${locale}/quiz`}
+          className="mt-4 block rounded-xl bg-blue-700 py-3 text-center text-lg font-bold text-white"
+        >
+          Start Quiz
+        </Link>
+      </section>
+      <section>
+        <h2 className="mb-3 text-4xl font-bold text-slate-900">Quick Access</h2>
+        <div className="grid grid-cols-3 gap-3">
+          <Link href={`/${locale}/explore`} className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2">
+            <img
+              src="https://images.unsplash.com/photo-1533577116850-9cc66cad8a9b?auto=format&fit=crop&w=600&q=80"
+              alt="Explore Korea"
+              className="h-24 w-full rounded-xl object-cover"
+            />
+            <p className="pt-2 text-center text-sm font-semibold text-slate-800">Explore</p>
+          </Link>
+          <Link href={`/${locale}/drama`} className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2">
+            <img
+              src="https://images.unsplash.com/photo-1538485399081-7c897e11d472?auto=format&fit=crop&w=600&q=80"
+              alt="Drama spots"
+              className="h-24 w-full rounded-xl object-cover"
+            />
+            <p className="pt-2 text-center text-sm font-semibold text-slate-800">K-Drama</p>
+          </Link>
+          <Link
+            href={`/${locale}/restaurants`}
+            className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1553163147-622ab57be1c7?auto=format&fit=crop&w=600&q=80"
+              alt="Korean food"
+              className="h-24 w-full rounded-xl object-cover"
+            />
+            <p className="pt-2 text-center text-sm font-semibold text-slate-800">K-Food</p>
+          </Link>
         </div>
       </section>
       <AdSenseUnit slot={adsenseSlots.home} />

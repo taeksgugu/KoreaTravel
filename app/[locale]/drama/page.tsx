@@ -34,15 +34,11 @@ export default async function DramaPage({
   if (!isLocale(locale)) notFound();
 
   return (
-    <section className="space-y-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
-      <header>
-        <h1 className="text-3xl font-semibold text-slate-900">K-Drama Filming City Guide</h1>
-        <p className="mt-2 text-slate-700">
-          Click trailer thumbnails to open YouTube embed playback. Closing the modal removes the player and stops video immediately.
-        </p>
+    <section className="space-y-5">
+      <header className="space-y-2">
+        <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">K-Drama Travel</h1>
       </header>
       <DramaCards locale={locale} />
     </section>
   );
 }
-

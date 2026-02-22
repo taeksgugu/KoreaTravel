@@ -70,16 +70,26 @@ export function QuizClient({ locale }: { locale: string }) {
     router.push(`/${locale}/details`);
   };
 
+  const goBack = () => {
+    if (index === 0) return;
+    setIndex((prev) => prev - 1);
+  };
+
   return (
-    <section className="space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
-      <header className="space-y-3">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">
-          Travel Personality Quiz
-        </p>
-        <h1 className="text-2xl font-semibold text-slate-900">Question {index + 1} of 10</h1>
-        <p className="text-lg text-slate-700">{current.prompt}</p>
-        <div className="h-2 w-full rounded-full bg-slate-100">
-          <div className="h-2 rounded-full bg-emerald-700" style={{ width: `${progress}%` }} />
+    <section className="space-y-5 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+      <header className="space-y-3 border-b border-slate-100 pb-4">
+        <div className="flex items-center justify-between">
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">STEP {index + 1} OF 10</span>
+          <button className="text-sm font-semibold text-blue-700" onClick={() => router.push(`/${locale}/details`)}>
+            Skip
+          </button>
+        </div>
+        <p className="text-5xl font-extrabold leading-tight text-slate-900">{current.prompt}</p>
+        <div className="flex items-center gap-3">
+          <div className="h-2 flex-1 rounded-full bg-slate-100">
+            <div className="h-2 rounded-full bg-blue-700" style={{ width: `${progress}%` }} />
+          </div>
+          <span className="text-sm font-semibold text-slate-500">{Math.round(progress)}%</span>
         </div>
       </header>
 
@@ -93,11 +103,11 @@ export function QuizClient({ locale }: { locale: string }) {
               key={option.id}
               type="button"
               onClick={() => setSelected((prev) => ({ ...prev, [current.id]: option.id }))}
-              className={`overflow-hidden rounded-2xl border text-left transition ${
-                checked ? "border-emerald-700 ring-2 ring-emerald-200" : "border-slate-200 hover:border-slate-400"
+              className={`overflow-hidden rounded-2xl border-2 text-left transition ${
+                checked ? "border-blue-700 ring-2 ring-blue-200" : "border-transparent hover:border-slate-300"
               }`}
             >
-              <div className="h-40 w-full bg-slate-100">
+              <div className="h-56 w-full bg-slate-100">
                 {preview ? (
                   <img src={preview.url} alt={option.label} className="h-full w-full object-cover" />
                 ) : (
@@ -105,7 +115,7 @@ export function QuizClient({ locale }: { locale: string }) {
                 )}
               </div>
               <div className="space-y-2 p-4">
-                <p className="font-medium text-slate-900">{option.label}</p>
+                <p className="text-2xl font-extrabold leading-tight text-slate-900">{option.label}</p>
                 {preview && (
                   <p className="text-xs text-slate-500">
                     Photo by{" "}
@@ -120,12 +130,20 @@ export function QuizClient({ locale }: { locale: string }) {
         })}
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex gap-3 border-t border-slate-100 pt-4">
+        <button
+          type="button"
+          disabled={index === 0}
+          onClick={goBack}
+          className="w-1/3 rounded-xl bg-slate-100 px-5 py-3 font-bold text-slate-600 disabled:opacity-40"
+        >
+          Back
+        </button>
         <button
           type="button"
           disabled={!canContinue}
           onClick={goNext}
-          className="rounded-full bg-emerald-700 px-5 py-2.5 font-medium text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="w-2/3 rounded-xl bg-blue-700 px-5 py-3 text-lg font-bold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           {index === quizQuestions.length - 1 ? "Continue to Details" : "Next"}
         </button>

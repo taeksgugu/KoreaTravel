@@ -20,7 +20,7 @@ export function SubregionPicker({
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-600">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-600">
           {locale === "ko" ? "시/군/구 드릴다운" : "City/County Drill-down"}
         </h2>
         <button
@@ -39,9 +39,9 @@ export function SubregionPicker({
               key={item.id}
               type="button"
               onClick={() => onSelectSubregion(item.id)}
-              className={`rounded-full px-3 py-1.5 text-sm transition ${
+              className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
                 active
-                  ? "bg-indigo-700 text-white"
+                  ? "bg-blue-700 text-white"
                   : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
               }`}
             >

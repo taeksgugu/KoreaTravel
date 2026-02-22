@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import { getExploreText } from "@/lib/explore-i18n";
 import { regionPresets } from "@/lib/presets";
 
 type Props = {
@@ -10,12 +9,9 @@ type Props = {
 };
 
 export function RegionPresetPicker({ locale, selectedPresetId, onSelectPreset }: Props) {
-  const t = getExploreText(locale);
-
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-600">{t.cityPresets}</h2>
-      <div className="mt-3 flex flex-wrap gap-2">
+    <section className="overflow-x-auto hide-scrollbar">
+      <div className="flex gap-2 pb-1">
         {regionPresets.map((preset) => {
           const isActive = preset.id === selectedPresetId;
           return (
@@ -23,10 +19,10 @@ export function RegionPresetPicker({ locale, selectedPresetId, onSelectPreset }:
               key={preset.id}
               type="button"
               onClick={() => onSelectPreset(preset.id)}
-              className={`rounded-full px-3 py-1.5 text-sm transition ${
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
                 isActive
-                  ? "bg-teal-700 text-white"
-                  : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  ? "bg-blue-700 text-white shadow"
+                  : "bg-white text-slate-700 border border-slate-200"
               }`}
             >
               {locale === "ko" ? preset.nameKo : preset.nameEn}
@@ -37,4 +33,5 @@ export function RegionPresetPicker({ locale, selectedPresetId, onSelectPreset }:
     </section>
   );
 }
+
 

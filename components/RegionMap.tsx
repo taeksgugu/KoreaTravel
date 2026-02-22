@@ -227,12 +227,12 @@ export function RegionMap({
 
   if (!mapboxToken) {
     return (
-      <div className="flex h-[460px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">
+      <div className="flex h-[460px] items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
         {t.mapTokenHint}
       </div>
     );
   }
 
-  return <div ref={containerRef} className="h-[460px] w-full rounded-2xl border border-slate-200" />;
+  return <div ref={containerRef} className="h-[460px] w-full rounded-3xl border border-slate-200 bg-white" />;
 }
 

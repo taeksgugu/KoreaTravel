@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -40,102 +40,97 @@ export function DramaCards({ locale }: Props) {
     []
   );
 
+  const featured = cards.slice(0, 4);
+  const spotlight = cards.slice(0, 6);
+
   return (
     <>
-      <div className="space-y-4">
-        {cards.map(({ drama, youtubeId, thumbnailUrl }) => (
-          <article key={drama.title} className="grid gap-4 rounded-2xl border border-slate-200 p-5 md:grid-cols-[240px_1fr]">
-            <div className="space-y-2">
-              {thumbnailUrl && youtubeId ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveVideoId(youtubeId);
-                    setActiveVideoTitle(drama.title);
-                  }}
-                  className="group relative block w-full text-left"
-                >
-                  <img
-                    src={thumbnailUrl}
-                    alt={`${drama.title} trailer preview`}
-                    className="h-40 w-full rounded-xl object-cover"
-                  />
-                  <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <span className="rounded-full bg-black/65 px-3 py-1 text-xs font-medium text-white group-hover:bg-black/80">
-                      Watch Trailer
-                    </span>
-                  </span>
-                </button>
-              ) : (
-                <div className="flex h-40 items-center justify-center rounded-xl bg-slate-100 text-sm text-slate-500">
-                  Trailer link will be updated
-                </div>
-              )}
-
-              <p className="text-xs text-slate-600">{drama.trailerLabel}</p>
-              {drama.trailerUrl ? (
-                <a
-                  href={drama.trailerUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs text-emerald-800 underline"
-                >
-                  Open trailer on YouTube
-                </a>
-              ) : null}
-            </div>
-
-            <div>
-              <h2 className="text-xl font-semibold text-slate-900">{drama.title}</h2>
-              <p className="mt-1 text-sm text-slate-500">{drama.koreanTitle}</p>
-              <p className="mt-2 text-sm text-slate-700">{drama.description}</p>
-
-              <div className="mt-3 flex flex-wrap gap-2">
-                {drama.filmingCities.map((slug) => {
-                  const city = citiesBySlug[slug];
-                  return (
-                    <Link
-                      key={`${drama.title}-${slug}`}
-                      href={`/${locale}/city/${slug}`}
-                      className="rounded-full border border-slate-300 px-3 py-1 text-sm hover:bg-slate-50"
-                    >
-                      {city.nameEn}
-                    </Link>
-                  );
-                })}
-              </div>
-
-              <div className="mt-4">
-                <p className="mb-2 text-sm font-medium text-slate-800">Major Filming Spots</p>
-                <div className="flex flex-wrap gap-2">
-                  {drama.filmingSpots.map((spot) => (
-                    <a
-                      key={`${drama.title}-${spot.name}`}
-                      href={spot.mapUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-full border border-slate-300 px-3 py-1 text-xs text-slate-700 hover:bg-slate-50"
-                    >
-                      {spot.name} - {spot.city}
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-3">
-                <a
-                  href={`https://www.google.com/maps/search/${encodeURIComponent(`${drama.title} filming locations Korea`)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm font-medium text-emerald-800 underline"
-                >
-                  Google Maps search for filming locations
-                </a>
-              </div>
-            </div>
-          </article>
+      <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+        {[
+          locale === "ko" ? "인기" : "Trending",
+          locale === "ko" ? "로맨스" : "Romance",
+          locale === "ko" ? "스릴러" : "Thriller",
+          locale === "ko" ? "판타지" : "Fantasy"
+        ].map((tab, idx) => (
+          <button
+            key={tab}
+            className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold ${idx === 0 ? "bg-blue-700 text-white" : "bg-slate-100 text-slate-600"}`}
+          >
+            {tab}
+          </button>
         ))}
       </div>
+
+      <section>
+        <h2 className="mb-3 text-4xl font-extrabold text-slate-900">Must-Visit Locations</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {featured.map(({ drama, youtubeId, thumbnailUrl }) => (
+            <button
+              key={drama.title}
+              type="button"
+              onClick={() => {
+                if (!youtubeId) return;
+                setActiveVideoId(youtubeId);
+                setActiveVideoTitle(drama.title);
+              }}
+              className="group relative aspect-[3/4] overflow-hidden rounded-2xl text-left"
+            >
+              {thumbnailUrl ? (
+                <img src={thumbnailUrl} alt={drama.title} className="h-full w-full object-cover transition group-hover:scale-105" />
+              ) : (
+                <div className="h-full w-full bg-slate-200" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+              <div className="absolute bottom-0 p-3">
+                <h3 className="line-clamp-2 text-2xl font-bold leading-tight text-white">{drama.title}</h3>
+                <p className="mt-1 text-sm text-white/85">{drama.filmingSpots.length} Locations</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-4xl font-extrabold text-slate-900">Guardian Spotlight</h2>
+          <span className="text-sm font-semibold text-blue-700">View All</span>
+        </div>
+        <div className="space-y-3">
+          {spotlight.map(({ drama }, idx) => {
+            const spot = drama.filmingSpots[0];
+            if (!spot) return null;
+            const city = citiesBySlug[drama.filmingCities[0]];
+            const youtubeId = drama.trailerUrl ? getYouTubeVideoId(drama.trailerUrl) : null;
+            const thumbnailUrl = youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/mqdefault.jpg` : null;
+
+            return (
+              <article key={`${drama.title}-${spot.name}`} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="grid grid-cols-[120px_1fr]">
+                  <div className="relative h-full min-h-28 bg-slate-100">
+                    {thumbnailUrl ? <img src={thumbnailUrl} alt={drama.title} className="h-full w-full object-cover" /> : null}
+                    <span className="absolute left-2 top-2 rounded-md bg-blue-700 px-2 py-1 text-xs font-bold text-white">EP {String(idx + 1).padStart(2, "0")}</span>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="text-xl font-bold text-slate-900">{spot.name}</h3>
+                    <p className="mt-1 line-clamp-2 text-sm italic text-slate-600">{drama.description}</p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <p className="text-sm text-slate-500">{spot.city || city?.nameEn}</p>
+                      <a href={spot.mapUrl} target="_blank" rel="noreferrer" className="rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
+                        Map
+                      </a>
+                    </div>
+                    <div className="mt-2 flex gap-2">
+                      <Link href={`/${locale}/city/${drama.filmingCities[0]}`} className="text-xs font-semibold text-blue-700 underline">
+                        City Guide
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
       {activeVideoId ? (
         <div
@@ -147,10 +142,7 @@ export function DramaCards({ locale }: Props) {
             setActiveVideoTitle("");
           }}
         >
-          <div
-            className="w-full max-w-4xl overflow-hidden rounded-2xl bg-black"
-            onClick={(event) => event.stopPropagation()}
-          >
+          <div className="w-full max-w-4xl overflow-hidden rounded-2xl bg-black" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-center justify-between bg-black/80 px-4 py-3 text-white">
               <p className="text-sm font-medium">{activeVideoTitle}</p>
               <button

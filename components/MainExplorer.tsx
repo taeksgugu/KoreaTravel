@@ -38,6 +38,24 @@ export function MainExplorer({ locale }: Props) {
 
   return (
     <div className="space-y-4">
+      <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p className="text-sm font-semibold text-slate-700">{locale === "ko" ? "서울, 대한민국" : "Seoul, South Korea"}</p>
+        <div className="mt-3 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-500">
+          {locale === "ko"
+            ? "여행지, 도시, 맛집을 검색해보세요"
+            : "Search destinations, cities, or food"}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-2 flex items-end justify-between">
+          <div>
+            <h2 className="text-4xl font-extrabold text-slate-900">{locale === "ko" ? "지역 탐색" : "Explore Regions"}</h2>
+            <p className="text-slate-500">{locale === "ko" ? "지도를 탭해 상세정보 보기" : "Tap a province to discover more"}</p>
+          </div>
+        </div>
+      </section>
+
       <RegionPresetPicker
         locale={locale}
         selectedPresetId={selectedPresetId}

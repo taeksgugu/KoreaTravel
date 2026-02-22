@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { LocaleNav } from "@/components/LocaleNav";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { isLocale, locales } from "@/lib/i18n";
 import { siteConfig, supportedLocales } from "@/lib/site";
 
@@ -42,9 +43,10 @@ export default async function LocaleLayout({
   }
 
   return (
-    <div className="min-h-screen pb-10">
+    <div className="min-h-screen pb-20">
       <LocaleNav locale={locale} />
-      <main className="mx-auto w-full max-w-6xl px-4">{children}</main>
+      <main className="mx-auto w-full max-w-[560px] px-4 py-4">{children}</main>
+      <MobileBottomNav locale={locale} />
     </div>
   );
 }
