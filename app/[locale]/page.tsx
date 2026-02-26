@@ -72,19 +72,52 @@ export default async function LocaleHome({
               Welcome to Korea
             </p>
             <h1 className="text-5xl font-extrabold leading-tight text-white">{text.brand}</h1>
+            <p className="text-xl font-semibold text-blue-100">
+              Find your best-fit Korea city in 1 minute.
+            </p>
             <p className="text-base text-slate-100">{text.subtitle}</p>
           </div>
         </div>
       </section>
       <section className="rounded-3xl border border-blue-200 bg-blue-50 p-5">
         <h2 className="text-3xl font-bold text-blue-800">Find your travel style</h2>
-        <p className="mt-2 text-slate-700">Take our 1-minute quiz for personalized picks.</p>
+        <p className="mt-2 text-slate-700">
+          10 quick choices -&gt; Top 3 Korea cities matched to your trip style, pace, and travel needs.
+        </p>
         <Link
           href={`/${locale}/quiz`}
           className="mt-4 block rounded-xl bg-blue-700 py-3 text-center text-lg font-bold text-white"
         >
           Start Quiz
         </Link>
+      </section>
+      <section className="rounded-3xl border border-slate-200 bg-white p-5">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-slate-900">Not ready for quiz?</h2>
+          <Link href={`/${locale}/explore`} className="text-sm font-semibold text-blue-700 underline">
+            Explore now
+          </Link>
+        </div>
+        <p className="mb-4 text-sm text-slate-700">
+          Start with curated highlights and jump into city guides immediately.
+        </p>
+        <div className="grid gap-3 md:grid-cols-3">
+          <Link href={`/${locale}/city/seoul`} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">Urban Starter</p>
+            <p className="mt-1 text-lg font-bold text-slate-900">Seoul</p>
+            <p className="mt-1 text-xs text-slate-600">Palaces, nightlife, shopping, easy transit</p>
+          </Link>
+          <Link href={`/${locale}/city/jeju`} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">Nature Escape</p>
+            <p className="mt-1 text-lg font-bold text-slate-900">Jeju</p>
+            <p className="mt-1 text-xs text-slate-600">Coastal drives, scenic routes, slow travel</p>
+          </Link>
+          <Link href={`/${locale}/city/busan`} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">Coastal City</p>
+            <p className="mt-1 text-lg font-bold text-slate-900">Busan</p>
+            <p className="mt-1 text-xs text-slate-600">Beach + city energy + seafood markets</p>
+          </Link>
+        </div>
       </section>
       <section>
         <h2 className="mb-3 text-4xl font-bold text-slate-900">Quick Access</h2>
