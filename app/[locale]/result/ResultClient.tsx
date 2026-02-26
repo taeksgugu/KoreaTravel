@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AdSenseUnit } from "@/components/AdSenseUnit";
 import { KoreaMap } from "@/components/KoreaMap";
 import { ResultMapbox } from "@/components/ResultMapbox";
-import { adsenseSlots } from "@/lib/adsense";
 import { citiesBySlug } from "@/lib/data/cities";
 import type { RecommendationInput, RecommendationResult, CitySlug, UnsplashPhoto } from "@/lib/data/types";
 
@@ -177,7 +175,6 @@ export function ResultClient({ locale }: { locale: string }) {
           )}
         </div>
       </section>
-      <AdSenseUnit slot={adsenseSlots.result} />
     </div>
   );
 }

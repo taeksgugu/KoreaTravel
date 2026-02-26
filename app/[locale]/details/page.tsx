@@ -16,6 +16,10 @@ export async function generateMetadata({
     title: "Trip Details Input",
     description:
       "Add group type, driving plan, Korean level, duration, and budget for better recommendations.",
+    robots: {
+      index: false,
+      follow: true
+    },
     alternates: {
       canonical: `/${locale}/details`,
       languages: Object.fromEntries(

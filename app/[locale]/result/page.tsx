@@ -16,6 +16,10 @@ export async function generateMetadata({
     title: "Top Korea City Results",
     description:
       "See your top 3 Korean city matches with ranking scores and map pins.",
+    robots: {
+      index: false,
+      follow: true
+    },
     alternates: {
       canonical: `/${locale}/result`,
       languages: Object.fromEntries(

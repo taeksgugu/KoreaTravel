@@ -1,8 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AdSenseUnit } from "@/components/AdSenseUnit";
-import { adsenseSlots } from "@/lib/adsense";
 import { isLocale, t } from "@/lib/i18n";
 import { siteConfig, supportedLocales } from "@/lib/site";
 
@@ -116,7 +114,31 @@ export default async function LocaleHome({
           </Link>
         </div>
       </section>
-      <AdSenseUnit slot={adsenseSlots.home} />
+      <section className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
+        <h2 className="text-3xl font-bold text-slate-900">How We Build Better Korea Itineraries</h2>
+        <p className="text-slate-700">
+          KoreaTravel combines a personality quiz with practical travel constraints to help visitors choose destinations
+          that fit their pace, interests, and logistics. Our recommendations are not random lists: they are generated from
+          travel vibe tags, transport accessibility from Incheon International Airport, expected language comfort, and trip duration.
+        </p>
+        <p className="text-slate-700">
+          We focus on useful planning outcomes: where to go first, how many days to allocate, and what to prioritize for
+          culture, food, coastal scenery, or nightlife. This helps first-time visitors avoid overpacked schedules and focus on
+          regions that actually match their trip style.
+        </p>
+      </section>
+      <section className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
+        <h2 className="text-3xl font-bold text-slate-900">Data Transparency</h2>
+        <p className="text-slate-700">
+          Destination listings and regional tourism records are sourced from official public tourism APIs where available.
+          We publish original summaries and avoid copying social review text. Restaurant pages provide map search pathways,
+          not scraped or duplicated ratings content.
+        </p>
+        <p className="text-slate-700">
+          If a live source is temporarily unavailable, fallback data is labeled accordingly. We continuously review pages for
+          outdated transport details, location changes, and event timing updates.
+        </p>
+      </section>
     </div>
   );
 }
