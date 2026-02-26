@@ -184,10 +184,6 @@ export function RegionContentPanel({
                 {item.startDate} {item.endDate ? `~ ${item.endDate}` : ""}
               </p>
             ) : null}
-            <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
-              <span>{item.category}</span>
-              <span>{item.source}</span>
-            </div>
             <div className="mt-3 flex flex-wrap gap-2">
               <a
                 href={`https://www.google.com/maps/search/${encodeURIComponent(item.addr ? `${item.title} ${item.addr}` : item.title)}`}
