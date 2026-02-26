@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { cities } from "@/lib/data/cities";
 import { getRestaurantGuide } from "@/lib/data/restaurants";
@@ -57,9 +58,11 @@ export function RestaurantsClient({ locale }: { locale: string }) {
       </header>
 
       <section className="overflow-hidden rounded-3xl bg-slate-900">
-        <img
+        <Image
           src="https://images.unsplash.com/photo-1583032015879-e5022cb87c3b?auto=format&fit=crop&w=1200&q=80"
           alt="Featured Korean food"
+          width={1200}
+          height={560}
           className="h-56 w-full object-cover opacity-80"
         />
         <div className="-mt-28 p-4">

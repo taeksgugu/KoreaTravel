@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { quizQuestions } from "@/lib/data/quiz";
 import type { UnsplashPhoto } from "@/lib/data/types";
 
@@ -109,7 +110,14 @@ export function QuizClient({ locale }: { locale: string }) {
             >
               <div className="h-56 w-full bg-slate-100">
                 {preview ? (
-                  <img src={preview.url} alt={option.label} className="h-full w-full object-cover" />
+                  <Image
+                    src={preview.url}
+                    alt={option.label}
+                    width={960}
+                    height={640}
+                    className="h-full w-full object-cover"
+                    unoptimized
+                  />
                 ) : (
                   <div className="flex h-full items-center justify-center text-sm text-slate-500">Loading Korea tourism photo...</div>
                 )}

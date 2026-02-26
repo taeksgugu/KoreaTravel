@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale, t } from "@/lib/i18n";
@@ -57,10 +58,13 @@ export default async function LocaleHome({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
       />
       <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-900 shadow-sm">
-        <img
+        <Image
           src="https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=80"
           alt="Korea palace at dusk"
+          width={1200}
+          height={420}
           className="h-[420px] w-full object-cover opacity-80"
+          priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6">
           <div className="mt-40 space-y-3">
@@ -86,17 +90,21 @@ export default async function LocaleHome({
         <h2 className="mb-3 text-4xl font-bold text-slate-900">Quick Access</h2>
         <div className="grid grid-cols-3 gap-3">
           <Link href={`/${locale}/explore`} className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1533577116850-9cc66cad8a9b?auto=format&fit=crop&w=600&q=80"
               alt="Explore Korea"
+              width={600}
+              height={240}
               className="h-24 w-full rounded-xl object-cover"
             />
             <p className="pt-2 text-center text-sm font-semibold text-slate-800">Explore</p>
           </Link>
           <Link href={`/${locale}/drama`} className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1538485399081-7c897e11d472?auto=format&fit=crop&w=600&q=80"
               alt="Drama spots"
+              width={600}
+              height={240}
               className="h-24 w-full rounded-xl object-cover"
             />
             <p className="pt-2 text-center text-sm font-semibold text-slate-800">K-Drama</p>
@@ -105,9 +113,11 @@ export default async function LocaleHome({
             href={`/${locale}/restaurants`}
             className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2"
           >
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1553163147-622ab57be1c7?auto=format&fit=crop&w=600&q=80"
               alt="Korean food"
+              width={600}
+              height={240}
               className="h-24 w-full rounded-xl object-cover"
             />
             <p className="pt-2 text-center text-sm font-semibold text-slate-800">K-Food</p>

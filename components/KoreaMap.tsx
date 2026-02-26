@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { CitySlug } from "@/lib/data/types";
 
 export interface RankedPin {
@@ -20,7 +21,7 @@ interface KoreaMapProps {
 export function KoreaMap({ pins, activeSlug, onHover, onSelect }: KoreaMapProps) {
   return (
     <div className="relative h-[720px] w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <img src="/korea.svg" alt="Korea map" className="h-full w-full object-contain p-6" />
+      <Image src="/korea.svg" alt="Korea map" fill className="object-contain p-6" />
       {pins.map((pin) => (
         <button
           key={pin.slug}

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { citiesBySlug } from "@/lib/data/cities";
 import { dramaItems } from "@/lib/data/dramas";
 
@@ -76,7 +77,14 @@ export function DramaCards({ locale }: Props) {
               className="group relative aspect-[3/4] overflow-hidden rounded-2xl text-left"
             >
               {thumbnailUrl ? (
-                <img src={thumbnailUrl} alt={drama.title} className="h-full w-full object-cover transition group-hover:scale-105" />
+                <Image
+                  src={thumbnailUrl}
+                  alt={drama.title}
+                  width={640}
+                  height={800}
+                  className="h-full w-full object-cover transition group-hover:scale-105"
+                  unoptimized
+                />
               ) : (
                 <div className="h-full w-full bg-slate-200" />
               )}
@@ -107,7 +115,16 @@ export function DramaCards({ locale }: Props) {
               <article key={`${drama.title}-${spot.name}`} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div className="grid grid-cols-[120px_1fr]">
                   <div className="relative h-full min-h-28 bg-slate-100">
-                    {thumbnailUrl ? <img src={thumbnailUrl} alt={drama.title} className="h-full w-full object-cover" /> : null}
+                    {thumbnailUrl ? (
+                      <Image
+                        src={thumbnailUrl}
+                        alt={drama.title}
+                        width={320}
+                        height={180}
+                        className="h-full w-full object-cover"
+                        unoptimized
+                      />
+                    ) : null}
                     <span className="absolute left-2 top-2 rounded-md bg-blue-700 px-2 py-1 text-xs font-bold text-white">EP {String(idx + 1).padStart(2, "0")}</span>
                   </div>
                   <div className="p-3">

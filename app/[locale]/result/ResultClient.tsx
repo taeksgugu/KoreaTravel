@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { KoreaMap } from "@/components/KoreaMap";
@@ -152,7 +153,14 @@ export function ResultClient({ locale }: { locale: string }) {
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 {previewPhotos.slice(0, 2).map((photo) => (
                   <figure key={photo.url} className="space-y-1">
-                    <img src={photo.url} alt={previewCity.nameEn} className="h-32 w-full rounded-xl object-cover" />
+                    <Image
+                      src={photo.url}
+                      alt={previewCity.nameEn}
+                      width={640}
+                      height={256}
+                      className="h-32 w-full rounded-xl object-cover"
+                      unoptimized
+                    />
                     <figcaption className="text-xs text-slate-500">
                       Photo by{" "}
                       <a href={photo.photographerLink} target="_blank" rel="noreferrer" className="underline">
