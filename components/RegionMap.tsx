@@ -76,12 +76,14 @@ export function RegionMap({
 
     const map = new mapboxgl.Map({
       container: containerRef.current,
-      style: "mapbox://styles/mapbox/light-v11",
+      style: "mapbox://styles/mapbox/outdoors-v12",
       center: [127.75, 36.2],
       zoom: 5.8,
       minZoom: 5,
       maxZoom: 11
     });
+    map.showTileBoundaries = false;
+    map.showCollisionBoxes = false;
 
     mapRef.current = map;
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
