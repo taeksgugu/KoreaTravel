@@ -1,7 +1,7 @@
 ﻿import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { guides } from "@/data/guides";
 import { MainExplorer } from "@/components/MainExplorer";
-import { exploreGuides } from "@/lib/data/exploreGuides";
 import { getExploreText } from "@/lib/explore-i18n";
 import { isLocale } from "@/lib/i18n";
 import { siteConfig, supportedLocales } from "@/lib/site";
@@ -60,27 +60,27 @@ export default async function ExplorePage({
             : "Designed for first-time visitors, these editorial guides explain where to go, why each area matters, and how to build efficient routes."}
         </p>
         <div className="space-y-4">
-          {exploreGuides.map((guide, idx) => (
+          {guides.map((guide, idx) => (
             <article key={guide.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
-                Guide {idx + 1}
-              </p>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">Guide {idx + 1}</p>
               <h3 className="mt-1 text-xl font-bold text-slate-900">
-                {locale === "ko" ? guide.titleKo : guide.titleEn}
+                {locale === "ko" ? guide.titleKo ?? guide.title : guide.title}
               </h3>
               <div className="mt-3 space-y-3 text-sm leading-relaxed text-slate-700">
-                {(locale === "ko" ? guide.bodyKo : guide.bodyEn).map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
+                {(locale === "ko" ? guide.contentKo ?? guide.content : guide.content)
+                  .split("\n\n")
+                  .map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
               </div>
               <div className="mt-3">
                 <a
-                  href={guide.mapUrl}
+                  href={guide.googleMapsUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="text-sm font-semibold text-blue-700 underline"
                 >
-                  {locale === "ko" ? guide.mapLabelKo : guide.mapLabelEn}
+                  {locale === "ko" ? "Google Maps에서 보기" : "Open in Google Maps"}
                 </a>
               </div>
             </article>
@@ -90,4 +90,3 @@ export default async function ExplorePage({
     </div>
   );
 }
-
