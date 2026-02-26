@@ -197,14 +197,6 @@ export function RegionContentPanel({
               >
                 {t.openInGoogleMaps}
               </a>
-              <a
-                href={`https://english.visitkorea.or.kr/svc/search/searchList.do?query=${encodeURIComponent(item.title)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
-              >
-                {t.visitKoreaSearch}
-              </a>
             </div>
           </article>
         ))}
