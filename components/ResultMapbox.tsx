@@ -31,7 +31,7 @@ export function ResultMapbox({ pins, activeSlug, onHover, onSelect }: ResultMapb
 
     const map = new mapboxgl.Map({
       container: containerRef.current,
-      style: "mapbox://styles/mapbox/light-v11",
+      style: "mapbox://styles/guguskorea/cmm3k1940009m01pt5a35cgnx",
       center: [127.8, 36.2],
       zoom: 5.7,
       minZoom: 5.2,
@@ -92,4 +92,3 @@ export function ResultMapbox({ pins, activeSlug, onHover, onSelect }: ResultMapb
 
   return <div ref={containerRef} className="h-[720px] w-full overflow-hidden rounded-2xl border border-slate-200 shadow-sm" />;
 }
-

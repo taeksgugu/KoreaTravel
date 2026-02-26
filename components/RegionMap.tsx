@@ -76,7 +76,7 @@ export function RegionMap({
 
     const map = new mapboxgl.Map({
       container: containerRef.current,
-      style: "mapbox://styles/mapbox/outdoors-v12",
+      style: "mapbox://styles/guguskorea/cmm3k1940009m01pt5a35cgnx",
       center: [127.75, 36.2],
       zoom: 5.8,
       minZoom: 5,
