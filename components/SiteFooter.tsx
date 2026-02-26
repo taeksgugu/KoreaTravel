@@ -22,6 +22,9 @@ export function SiteFooter({ locale }: { locale: Locale }) {
         <Link href={`/${locale}/contact` as never} className="underline">
           Contact
         </Link>
+        <Link href={`/${locale}/faq` as never} className="underline">
+          FAQ
+        </Link>
       </div>
       <p className="mt-3 text-xs text-slate-500">
         KoreaTravel provides original travel planning content for international visitors.

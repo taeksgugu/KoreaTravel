@@ -7,10 +7,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const locales = ["en", "ko"];
   const routes = [
     "",
-    "/quiz",
     "/drama",
     "/restaurants",
     "/explore",
+    "/faq",
     "/about",
     "/contact",
     "/privacy",

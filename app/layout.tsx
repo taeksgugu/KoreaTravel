@@ -6,6 +6,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://visitkoreaguide.org";
 const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-3946429838788366";
 const hasAdsenseClient = adsenseClient.startsWith("ca-pub-");
+const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "hello@visitkoreaguide.org";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -36,9 +37,23 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "KoreaTravel",
+    url: siteUrl,
+    email: contactEmail
+  };
+
   return (
     <html lang="en">
       <body>
+        <Script
+          id="org-structured-data"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         {hasAdsenseClient ? (
           <Script
             id="adsense-loader"

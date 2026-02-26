@@ -82,8 +82,33 @@ Required:
 Optional:
 - `PUBLIC_DATA_API_KEY`
 - `PUBLIC_FESTIVAL_API_ENDPOINT`
+- `NEXT_PUBLIC_CONTACT_EMAIL`
+- `NEXT_PUBLIC_ADSENSE_CLIENT`
+- `ADS_TXT_CONTENT`
 
 If `TOUR_API_KEY` is missing, API falls back to mock content.
+
+## AdSense Readiness Checklist
+
+The project includes policy/trust pages and crawler signals needed for review:
+
+- Trust pages:
+  - `/{locale}/about`
+  - `/{locale}/editorial-policy`
+  - `/{locale}/privacy`
+  - `/{locale}/terms`
+  - `/{locale}/contact`
+  - `/{locale}/faq`
+- `ads.txt` route:
+  - `/ads.txt` (backed by `ADS_TXT_CONTENT`)
+- SEO signals:
+  - Expanded sitemap with trust pages + city pages
+  - `details`, `quiz`, and `result` are utility flows and treated as non-index pages
+
+After deployment, verify:
+1. `https://visitkoreaguide.org/ads.txt`
+2. `https://visitkoreaguide.org/sitemap.xml`
+3. Search Console indexing for key content pages (`/en`, `/en/explore`, `/en/drama`, `/en/restaurants`, `/en/about`)
 
 ## Run Locally
 

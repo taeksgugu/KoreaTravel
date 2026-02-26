@@ -16,6 +16,10 @@ export async function generateMetadata({
     title: "Travel Personality Quiz",
     description:
       "Answer 10 visual questions to get your personalized Korea city recommendations.",
+    robots: {
+      index: false,
+      follow: true
+    },
     alternates: {
       canonical: `/${locale}/quiz`,
       languages: Object.fromEntries(
