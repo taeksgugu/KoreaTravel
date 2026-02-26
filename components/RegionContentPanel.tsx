@@ -11,6 +11,7 @@ type Props = {
   subregionId?: string;
   subregionName?: string;
   presetId?: string;
+  preferredCategory?: Category;
 };
 
 export function RegionContentPanel({
@@ -19,7 +20,8 @@ export function RegionContentPanel({
   regionName,
   subregionId,
   subregionName,
-  presetId
+  presetId,
+  preferredCategory
 }: Props) {
   const t = getExploreText(locale);
   const tabs: { id: Category; label: string }[] = [
@@ -37,6 +39,12 @@ export function RegionContentPanel({
   const [hasMore, setHasMore] = useState(false);
   const [sort, setSort] = useState<"latest" | "title">("latest");
   const [eventStatus, setEventStatus] = useState<EventStatus>("all");
+
+  useEffect(() => {
+    if (preferredCategory && preferredCategory !== category) {
+      setCategory(preferredCategory);
+    }
+  }, [preferredCategory, category]);
 
   useEffect(() => {
     setPage(1);

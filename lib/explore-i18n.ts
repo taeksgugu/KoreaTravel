@@ -50,7 +50,7 @@ const TEXT: Record<Locale, ExploreText> = {
     openInGoogleMaps: "Open in Google Maps",
     visitKoreaSearch: "VisitKorea Search",
     presetApplied: "Preset Applied",
-    mapTokenHint: "Set NEXT_PUBLIC_MAPBOX_TOKEN to enable interactive polygon map."
+    mapTokenHint: "Interactive map is temporarily unavailable."
   },
   ko: {
     metadataTitle: "Hanguk Jido Tamsek",
@@ -76,7 +76,7 @@ const TEXT: Record<Locale, ExploreText> = {
     openInGoogleMaps: "Google Jido Yelgi",
     visitKoreaSearch: "VisitKorea Geomsaek",
     presetApplied: "Preset Jeogyong",
-    mapTokenHint: "Inteoraektibeu jido sayong-eun NEXT_PUBLIC_MAPBOX_TOKEN seoljeong-i pilyo hamnida."
+    mapTokenHint: "인터랙티브 지도를 잠시 사용할 수 없습니다."
   }
 };
 

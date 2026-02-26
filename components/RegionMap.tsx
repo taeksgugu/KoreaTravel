@@ -227,8 +227,13 @@ export function RegionMap({
 
   if (!mapboxToken) {
     return (
-      <div className="flex h-[460px] items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
-        {t.mapTokenHint}
+      <div className="flex h-[460px] flex-col items-center justify-center rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-blue-50 p-6 text-center">
+        <p className="text-lg font-semibold text-slate-800">{t.mapTokenHint}</p>
+        <p className="mt-2 max-w-md text-sm text-slate-600">
+          {locale === "ko"
+            ? "프리셋 버튼이나 테마 카드를 눌러 지역 콘텐츠를 먼저 탐색할 수 있습니다."
+            : "You can still explore content using city presets or travel themes above."}
+        </p>
       </div>
     );
   }

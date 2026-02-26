@@ -348,6 +348,20 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
       options.category === "events"
         ? filterEventsByStatus(normalized, options.eventStatus ?? "all")
         : normalized;
+
+    if (filtered.length === 0) {
+      const fallback = createMockItems(region.name_en, options.category, options.page, options.pageSize);
+      return {
+        items:
+          options.category === "events"
+            ? filterEventsByStatus(fallback.items, options.eventStatus ?? "all")
+            : fallback.items,
+        hasMore: fallback.hasMore,
+        source: "mock",
+        debug: "mock_reason:tourapi_empty_payload_fallback"
+      };
+    }
+
     const hasMore = options.page * options.pageSize < totalCount;
 
     return {

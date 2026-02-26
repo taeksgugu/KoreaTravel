@@ -8,6 +8,8 @@ import { SubregionPicker } from "@/components/SubregionPicker";
 import { presetById } from "@/lib/presets";
 import { regionById } from "@/lib/regions";
 import { subregionById, subregionsByRegion } from "@/lib/subregions";
+import { themePresets } from "@/lib/theme-presets";
+import type { Category } from "@/lib/types";
 
 type Props = {
   locale: "en" | "ko";
@@ -17,6 +19,7 @@ export function MainExplorer({ locale }: Props) {
   const [selectedRegionId, setSelectedRegionId] = useState("seoul");
   const [selectedPresetId, setSelectedPresetId] = useState<string | undefined>(undefined);
   const [selectedSubregionId, setSelectedSubregionId] = useState<string | undefined>(undefined);
+  const [preferredCategory, setPreferredCategory] = useState<Category | undefined>(undefined);
 
   const selectedRegionName = useMemo(() => {
     const region = regionById[selectedRegionId];
@@ -53,6 +56,34 @@ export function MainExplorer({ locale }: Props) {
             <h2 className="text-4xl font-extrabold text-slate-900">{locale === "ko" ? "지역 탐색" : "Explore Regions"}</h2>
             <p className="text-slate-500">{locale === "ko" ? "지도를 탭해 상세정보 보기" : "Tap a province to discover more"}</p>
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h3 className="text-lg font-bold text-slate-900">
+          {locale === "ko" ? "테마 여행 시작하기" : "Start With a Travel Theme"}
+        </h3>
+        <div className="mt-3 grid gap-2 md:grid-cols-2">
+          {themePresets.map((theme) => (
+            <button
+              key={theme.id}
+              type="button"
+              onClick={() => {
+                setSelectedRegionId(theme.regionId);
+                setSelectedPresetId(theme.presetId);
+                setSelectedSubregionId(theme.subregionId);
+                setPreferredCategory(theme.category);
+              }}
+              className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-left hover:border-blue-300 hover:bg-blue-50"
+            >
+              <p className="text-sm font-semibold text-blue-700">
+                {locale === "ko" ? theme.titleKo : theme.titleEn}
+              </p>
+              <p className="mt-1 text-xs text-slate-600">
+                {locale === "ko" ? theme.descKo : theme.descEn}
+              </p>
+            </button>
+          ))}
         </div>
       </section>
 
@@ -101,6 +132,7 @@ export function MainExplorer({ locale }: Props) {
           subregionId={selectedSubregionId}
           subregionName={selectedSubregionName}
           presetId={selectedPresetId}
+          preferredCategory={preferredCategory}
         />
       </section>
     </div>
