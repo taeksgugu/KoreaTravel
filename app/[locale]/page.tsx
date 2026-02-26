@@ -91,7 +91,7 @@ export default async function LocaleHome({
         <div className="grid grid-cols-3 gap-3">
           <Link href={`/${locale}/explore`} className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2">
             <Image
-              src="https://images.unsplash.com/photo-1533577116850-9cc66cad8a9b?auto=format&fit=crop&w=600&q=80"
+              src="/quick-access/explore.jpg"
               alt="Explore Korea"
               width={600}
               height={240}
@@ -101,7 +101,7 @@ export default async function LocaleHome({
           </Link>
           <Link href={`/${locale}/drama`} className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2">
             <Image
-              src="https://images.unsplash.com/photo-1538485399081-7c897e11d472?auto=format&fit=crop&w=600&q=80"
+              src="/quick-access/k-drama.jpg"
               alt="Drama spots"
               width={600}
               height={240}
@@ -114,7 +114,7 @@ export default async function LocaleHome({
             className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-2"
           >
             <Image
-              src="https://images.unsplash.com/photo-1553163147-622ab57be1c7?auto=format&fit=crop&w=600&q=80"
+              src="/quick-access/k-food.jpg"
               alt="Korean food"
               width={600}
               height={240}
