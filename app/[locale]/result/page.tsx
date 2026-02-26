@@ -16,6 +16,31 @@ export async function generateMetadata({
     title: "Top Korea City Results",
     description:
       "See your top 3 Korean city matches with ranking scores and map pins.",
+    keywords: [
+      "Korea quiz results",
+      "Korea city match",
+      "Seoul Busan Jeju recommendations",
+      "Korea travel personality result"
+    ],
+    openGraph: {
+      title: "Top Korea City Results",
+      description: "See your top 3 Korean city matches with ranking scores and map pins.",
+      url: `${siteConfig.siteUrl}/${locale}/result`,
+      images: [
+        {
+          url: "/quick-access/explore.png",
+          width: 1200,
+          height: 630,
+          alt: "KoreaTravel top city result map"
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Top Korea City Results",
+      description: "See your top 3 Korean city matches with ranking scores and map pins.",
+      images: ["/quick-access/explore.png"]
+    },
     robots: {
       index: false,
       follow: true

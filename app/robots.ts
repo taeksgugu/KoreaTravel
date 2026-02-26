@@ -2,6 +2,7 @@
 
 export default function robots(): MetadataRoute.Robots {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://visitkoreaguide.org";
+  const host = new URL(base).host;
 
   return {
     rules: [
@@ -19,6 +20,6 @@ export default function robots(): MetadataRoute.Robots {
       }
     ],
     sitemap: `${base}/sitemap.xml`,
-    host: base
+    host
   };
 }

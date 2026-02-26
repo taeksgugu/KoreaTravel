@@ -17,6 +17,35 @@ export async function generateMetadata({
     title: "Korea Travel Personality Quiz and City Recommendations",
     description:
       "Discover your best-fit Korean destinations with a travel personality quiz, trip details, and map-based results.",
+    keywords: [
+      "Korea travel",
+      "Seoul itinerary",
+      "Jeju travel guide",
+      "Busan trip planner",
+      "Korea city recommendations",
+      "Korean travel themes"
+    ],
+    openGraph: {
+      title: "Korea Travel Personality Quiz and City Recommendations",
+      description:
+        "Find your best Korea travel style and explore city guides for Seoul, Jeju, Busan, and more.",
+      url: `${siteConfig.siteUrl}/${locale}`,
+      images: [
+        {
+          url: "/quick-access/explore.png",
+          width: 1200,
+          height: 630,
+          alt: "KoreaTravel explore map and city guides"
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Korea Travel Personality Quiz and City Recommendations",
+      description:
+        "Find your best Korea travel style and explore city guides for Seoul, Jeju, Busan, and more.",
+      images: ["/quick-access/explore.png"]
+    },
     alternates: {
       canonical: `/${locale}`,
       languages: Object.fromEntries(

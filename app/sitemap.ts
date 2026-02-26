@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/drama",
     "/restaurants",
     "/explore",
+    "/regions",
     "/faq",
     "/about",
     "/contact",
@@ -32,5 +33,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }))
   );
 
-  return [...localeRoutes, ...cityRoutes];
+  const regionLandingRoutes = locales.flatMap((locale) =>
+    cities.map((city) => ({
+      url: `${base}/${locale}/regions/${city.slug}`,
+      lastModified: now
+    }))
+  );
+
+  return [...localeRoutes, ...cityRoutes, ...regionLandingRoutes];
 }

@@ -21,6 +21,33 @@ export async function generateMetadata({
   return {
     title: `${city.nameEn} Travel Guide`,
     description: city.summary,
+    keywords: [
+      `${city.nameEn} travel`,
+      `${city.nameEn} itinerary`,
+      `${city.nameEn} attractions`,
+      `${city.nameEn} food`,
+      "Korea travel guide",
+      ...city.tags.map((tag) => `${city.nameEn} ${tag.toLowerCase()}`)
+    ],
+    openGraph: {
+      title: `${city.nameEn} Travel Guide`,
+      description: city.summary,
+      url: `${siteConfig.siteUrl}/${locale}/city/${city.slug}`,
+      images: [
+        {
+          url: "/quick-access/explore.png",
+          width: 1200,
+          height: 630,
+          alt: `${city.nameEn} travel guide`
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${city.nameEn} Travel Guide`,
+      description: city.summary,
+      images: ["/quick-access/explore.png"]
+    },
     alternates: {
       canonical: `/${locale}/city/${city.slug}`,
       languages: Object.fromEntries(
