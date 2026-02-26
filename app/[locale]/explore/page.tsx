@@ -6,6 +6,42 @@ import { getExploreText } from "@/lib/explore-i18n";
 import { isLocale } from "@/lib/i18n";
 import { siteConfig, supportedLocales } from "@/lib/site";
 
+function renderParagraphWithLinks(paragraph: string) {
+  const linkPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+  const nodes: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = linkPattern.exec(paragraph)) !== null) {
+    const [fullMatch, label, href] = match;
+    const start = match.index;
+
+    if (start > lastIndex) {
+      nodes.push(paragraph.slice(lastIndex, start));
+    }
+
+    nodes.push(
+      <a
+        key={`${href}-${start}`}
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className="font-semibold text-blue-900 underline decoration-blue-900 hover:text-blue-700"
+      >
+        {label}
+      </a>
+    );
+
+    lastIndex = start + fullMatch.length;
+  }
+
+  if (lastIndex < paragraph.length) {
+    nodes.push(paragraph.slice(lastIndex));
+  }
+
+  return nodes;
+}
+
 export async function generateMetadata({
   params
 }: {
@@ -70,7 +106,7 @@ export default async function ExplorePage({
                 {(locale === "ko" ? guide.contentKo ?? guide.content : guide.content)
                   .split("\n\n")
                   .map((paragraph) => (
-                    <p key={paragraph}>{paragraph}</p>
+                    <p key={paragraph}>{renderParagraphWithLinks(paragraph)}</p>
                   ))}
               </div>
               <div className="mt-3">
