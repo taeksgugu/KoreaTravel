@@ -24,13 +24,16 @@ export type SubregionFeatureProperties = {
 export type NormalizedItem = {
   id: string;
   title: string;
+  enTitle?: string;
   category: Category;
   addr: string;
   mapx: number | null;
   mapy: number | null;
+  googleMapsUrl?: string | null;
   firstImage: string | null;
   tel: string | null;
   overview: string | null;
+  enDescription?: string;
   startDate: string | null;
   endDate: string | null;
   source: "tourapi" | "mock" | "public-festival";

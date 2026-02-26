@@ -14,6 +14,7 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "mapbox-gl": "^3.18.1",
     "next": "15.1.12",
     "react": "19.0.0",
