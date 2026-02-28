@@ -33,6 +33,7 @@ export function RegionContentPanel({
   const [items, setItems] = useState<NormalizedItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [sort, setSort] = useState<"latest" | "title">("latest");
@@ -47,6 +48,7 @@ export function RegionContentPanel({
   useEffect(() => {
     setPage(1);
     setItems([]);
+    setHasLoadedOnce(false);
   }, [regionId, category, sort, eventStatus, presetId, subregionId]);
 
   useEffect(() => {
@@ -79,6 +81,7 @@ export function RegionContentPanel({
 
         setItems((prev) => (page === 1 ? payload.items : [...prev, ...payload.items]));
         setHasMore(payload.hasMore);
+        setHasLoadedOnce(true);
       } catch {
         if (ignore) return;
         setError(t.loadError);
@@ -156,7 +159,7 @@ export function RegionContentPanel({
         })}
       </div>
 
-      {loading && page === 1 ? (
+      {(loading && page === 1) || (!hasLoadedOnce && page === 1) ? (
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {Array.from({ length: 4 }).map((_, idx) => (
             <div key={idx} className="h-36 animate-pulse rounded-xl bg-slate-100" />
@@ -166,7 +169,7 @@ export function RegionContentPanel({
 
       {error ? <p className="mt-4 rounded-lg bg-rose-50 p-3 text-sm text-rose-700">{error}</p> : null}
 
-      {!loading && !error && items.length === 0 ? (
+      {!loading && !error && hasLoadedOnce && items.length === 0 ? (
         <p className="mt-4 rounded-lg bg-slate-50 p-4 text-sm text-slate-600">{t.noResults}</p>
       ) : null}
 
