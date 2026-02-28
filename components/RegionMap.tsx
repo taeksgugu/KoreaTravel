@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import mapboxgl, { LngLatBoundsLike, Map } from "mapbox-gl";
+import { listCityLevelRegionIds } from "@/lib/city-level";
 import { getExploreText } from "@/lib/explore-i18n";
 import { regionGeoJson } from "@/lib/region-geojson";
 import { subregionGeoJson } from "@/lib/subregions";
@@ -19,18 +20,6 @@ const REGION_SOURCE_ID = "korea-regions";
 const SUBREGION_SOURCE_ID = "korea-subregions";
 const CITY_REGION_LAYER_ID = "city-region-fill";
 const SUBREGION_LAYER_ID = "subregion-fill";
-
-const CITY_LEVEL_REGION_IDS = new Set([
-  "seoul",
-  "incheon",
-  "daejeon",
-  "daegu",
-  "gwangju",
-  "busan",
-  "ulsan",
-  "sejong",
-  "jeju"
-]);
 
 function flattenCoords(coords: unknown, out: [number, number][]) {
   if (!Array.isArray(coords)) return;
@@ -76,8 +65,9 @@ export function RegionMap({
   }, []);
 
   const cityOnlyRegionGeoJson = useMemo(() => {
+    const cityLevelSet = new Set(listCityLevelRegionIds());
     const features = regionGeoJson.features.filter((feature) =>
-      CITY_LEVEL_REGION_IDS.has(feature.properties.region_id)
+      cityLevelSet.has(feature.properties.region_id)
     );
     return {
       type: "FeatureCollection",

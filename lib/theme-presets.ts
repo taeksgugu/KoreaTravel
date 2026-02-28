@@ -1,4 +1,4 @@
-import type { Category } from "./types";
+﻿import type { Category } from "./types";
 
 export type ThemePreset = {
   id: string;
@@ -18,7 +18,7 @@ export const themePresets: ThemePreset[] = [
     titleEn: "K-Drama Night Seoul",
     titleKo: "K-드라마 나이트 서울",
     descEn: "Namsan views, city lights, romance spots",
-    descKo: "남산 야경, 시티라이트, 로맨스 스팟",
+    descKo: "남산 야경, 시티 라이트, 로맨틱 스팟",
     regionId: "seoul",
     presetId: "seoul",
     category: "attractions"
@@ -28,7 +28,7 @@ export const themePresets: ThemePreset[] = [
     titleEn: "Coastal Healing Trip",
     titleKo: "해안 힐링 여행",
     descEn: "Ocean views, sunrise points, relaxed pace",
-    descKo: "오션뷰, 일출 명소, 느긋한 동선",
+    descKo: "오션뷰, 일출 명소, 여유로운 동선",
     regionId: "jeju",
     presetId: "jeju",
     category: "attractions"
@@ -38,7 +38,7 @@ export const themePresets: ThemePreset[] = [
     titleEn: "Local Foodie Route",
     titleKo: "로컬 미식 루트",
     descEn: "Markets, street food, iconic local dishes",
-    descKo: "시장, 길거리 음식, 지역 대표 요리",
+    descKo: "시장, 길거리 음식, 대표 향토 요리",
     regionId: "busan",
     presetId: "busan",
     category: "food"
@@ -46,7 +46,7 @@ export const themePresets: ThemePreset[] = [
   {
     id: "heritage-slow",
     titleEn: "Heritage Slow Walk",
-    titleKo: "헤리티지 슬로우 워크",
+    titleKo: "헤리티지 슬로 워크",
     descEn: "Hanok villages, temples, historical lanes",
     descKo: "한옥마을, 사찰, 역사 골목",
     regionId: "gyeongbuk",
@@ -58,7 +58,7 @@ export const themePresets: ThemePreset[] = [
     titleEn: "Festival Hunter",
     titleKo: "축제 헌터",
     descEn: "Seasonal events and local celebrations",
-    descKo: "시즌 이벤트와 지역 축제",
+    descKo: "계절별 이벤트와 지역 축제",
     regionId: "seoul",
     presetId: "seoul",
     category: "events"

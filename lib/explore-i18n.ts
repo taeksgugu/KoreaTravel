@@ -27,14 +27,14 @@ type ExploreText = {
 
 const TEXT: Record<Locale, ExploreText> = {
   en: {
-    metadataTitle: "Korea Region Map Explorer",
+    metadataTitle: "Korea City Map Explorer",
     metadataDescription:
-      "Explore Korea regions and drill-down subregions to load attractions, food, stay, and event data.",
-    heading: "Korea Regional Explorer",
+      "Explore Korea city-level destinations and drill down into key districts for attractions, food, stay, and event data.",
+    heading: "Korea City Explorer",
     description:
-      "Click a province and optionally drill down into key city/county polygons, then browse attractions, food, stay, and events.",
+      "Select a city and optionally drill down into key districts, then browse attractions, food, stay, and events.",
     cityPresets: "City Presets (15)",
-    selectedRegion: "Selected Region",
+    selectedRegion: "Selected City/Area",
     sort: "Sort",
     latest: "Latest",
     title: "Title",
@@ -54,11 +54,11 @@ const TEXT: Record<Locale, ExploreText> = {
   },
   ko: {
     metadataTitle: "한국 지역 탐색",
-    metadataDescription: "지도를 클릭해 지역을 선택하고 카테고리별 콘텐츠를 탐색하세요.",
-    heading: "한국 지역 탐색",
-    description: "지역을 선택한 뒤 관광지, 맛집, 숙박, 행사 정보를 확인하세요.",
+    metadataDescription: "도시 지도를 클릭해 지역을 선택하고 카테고리별 콘텐츠를 탐색하세요.",
+    heading: "한국 도시 탐색",
+    description: "도시를 선택한 뒤 필요하면 시군구까지 내려가 관광지, 맛집, 숙박, 행사 정보를 확인하세요.",
     cityPresets: "도시 프리셋 (15)",
-    selectedRegion: "선택한 지역",
+    selectedRegion: "선택한 도시/지역",
     sort: "정렬",
     latest: "최신순",
     title: "이름순",

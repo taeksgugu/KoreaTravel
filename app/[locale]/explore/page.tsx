@@ -75,15 +75,18 @@ export default async function ExplorePage({
     <div className="space-y-4 pb-2">
       <MainExplorer locale={locale} />
       <section className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
-        <h2 className="text-2xl font-bold text-slate-900">How to Use Explore Regions</h2>
+        <h2 className="text-2xl font-bold text-slate-900">
+          {locale === "ko" ? "도시 탐색 사용 가이드" : "How to Use Explore Cities"}
+        </h2>
         <p className="text-slate-700">
-          Explore starts with province-level map selection and supports drill-down for cities and counties where available.
-          This helps travelers compare areas by access, local attractions, food, stay options, and events before finalizing
-          an itinerary.
+          {locale === "ko"
+            ? "Explore는 도시 단위 탐색을 기본으로 제공하며, 필요한 경우 시군구 드릴다운으로 더 세부 지역까지 확인할 수 있습니다. 최종 일정 전에 접근성, 관광지, 맛집, 숙박, 행사 정보를 한 화면에서 비교해 보세요."
+            : "Explore is designed around city-level selection. When available, you can drill down into specific districts for finer planning. Compare access, attractions, food, stay options, and events before finalizing your itinerary."}
         </p>
         <p className="text-slate-700">
-          Listings are generated from official tourism APIs when available. If live API data is unavailable, fallback data is
-          clearly labeled so users can distinguish real-time results from placeholders.
+          {locale === "ko"
+            ? "목록 데이터는 공식 관광 API를 우선 사용하며, 라이브 데이터가 일시적으로 불가할 때는 대체 데이터를 명확히 구분해 표시합니다."
+            : "Listings use official tourism APIs when available. If live data is temporarily unavailable, clearly labeled fallback content is shown so the page never appears empty."}
         </p>
       </section>
       <section className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5">

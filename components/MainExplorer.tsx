@@ -1,10 +1,11 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RegionContentPanel } from "@/components/RegionContentPanel";
 import { RegionMap } from "@/components/RegionMap";
 import { RegionPresetPicker } from "@/components/RegionPresetPicker";
 import { SubregionPicker } from "@/components/SubregionPicker";
+import { isCityLevelRegion } from "@/lib/city-level";
 import { presetById } from "@/lib/presets";
 import { regionById } from "@/lib/regions";
 import { subregionById, subregionsByRegion } from "@/lib/subregions";
@@ -39,10 +40,30 @@ export function MainExplorer({ locale }: Props) {
     return locale === "ko" ? subregion.nameKo : subregion.nameEn;
   }, [locale, selectedSubregionId]);
 
+  const selectedPresetName = useMemo(() => {
+    if (!selectedPresetId) return undefined;
+    const preset = presetById[selectedPresetId];
+    if (!preset) return undefined;
+    return locale === "ko" ? preset.nameKo : preset.nameEn;
+  }, [locale, selectedPresetId]);
+
+  useEffect(() => {
+    if (isCityLevelRegion(selectedRegionId)) return;
+    if (selectedSubregionId) return;
+    const firstSubregion = availableSubregions[0];
+    if (firstSubregion) {
+      setSelectedSubregionId(firstSubregion.id);
+    }
+  }, [availableSubregions, selectedRegionId, selectedSubregionId]);
+
+  const selectedDisplayName = selectedSubregionName ?? selectedPresetName ?? selectedRegionName;
+
   return (
     <div className="space-y-4">
       <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p className="text-sm font-semibold text-slate-700">{locale === "ko" ? "서울, 대한민국" : "Seoul, South Korea"}</p>
+        <p className="text-sm font-semibold text-slate-700">
+          {selectedDisplayName}, {locale === "ko" ? "대한민국" : "South Korea"}
+        </p>
         <div className="mt-3 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-500">
           {locale === "ko"
             ? "여행지, 도시, 맛집을 검색해보세요"
@@ -53,8 +74,10 @@ export function MainExplorer({ locale }: Props) {
       <section>
         <div className="mb-2 flex items-end justify-between">
           <div>
-            <h2 className="text-4xl font-extrabold text-slate-900">{locale === "ko" ? "지역 탐색" : "Explore Regions"}</h2>
-            <p className="text-slate-500">{locale === "ko" ? "도시/시군구를 탭해 상세정보 보기" : "Tap a city to discover more"}</p>
+            <h2 className="text-4xl font-extrabold text-slate-900">{locale === "ko" ? "도시 탐색" : "Explore Cities"}</h2>
+            <p className="text-slate-500">
+              {locale === "ko" ? "도시를 선택하고 필요하면 시군구로 내려가 보세요" : "Select a city and drill down into districts when needed"}
+            </p>
           </div>
         </div>
       </section>
@@ -69,9 +92,10 @@ export function MainExplorer({ locale }: Props) {
               key={theme.id}
               type="button"
               onClick={() => {
+                const fallbackSubregionId = theme.subregionId ?? (theme.presetId ? presetById[theme.presetId]?.subregionId : undefined);
                 setSelectedRegionId(theme.regionId);
                 setSelectedPresetId(theme.presetId);
-                setSelectedSubregionId(theme.subregionId);
+                setSelectedSubregionId(fallbackSubregionId);
                 setPreferredCategory(theme.category);
               }}
               className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-left hover:border-blue-300 hover:bg-blue-50"
@@ -102,7 +126,11 @@ export function MainExplorer({ locale }: Props) {
         locale={locale}
         subregions={availableSubregions}
         selectedSubregionId={selectedSubregionId}
+        allowClear={isCityLevelRegion(selectedRegionId)}
         onSelectSubregion={(subregionId) => {
+          if (!subregionId && !isCityLevelRegion(selectedRegionId)) {
+            return;
+          }
           setSelectedSubregionId(subregionId);
           setSelectedPresetId(undefined);
         }}
@@ -128,9 +156,8 @@ export function MainExplorer({ locale }: Props) {
         <RegionContentPanel
           locale={locale}
           regionId={selectedRegionId}
-          regionName={selectedRegionName}
+          regionName={selectedDisplayName}
           subregionId={selectedSubregionId}
-          subregionName={selectedSubregionName}
           presetId={selectedPresetId}
           preferredCategory={preferredCategory}
         />
@@ -138,4 +165,3 @@ export function MainExplorer({ locale }: Props) {
     </div>
   );
 }
-

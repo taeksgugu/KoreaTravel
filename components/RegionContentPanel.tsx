@@ -9,7 +9,6 @@ type Props = {
   regionId: string;
   regionName: string;
   subregionId?: string;
-  subregionName?: string;
   presetId?: string;
   preferredCategory?: Category;
 };
@@ -19,7 +18,6 @@ export function RegionContentPanel({
   regionId,
   regionName,
   subregionId,
-  subregionName,
   presetId,
   preferredCategory
 }: Props) {
@@ -97,9 +95,8 @@ export function RegionContentPanel({
   }, [category, eventStatus, locale, page, presetId, regionId, sort, subregionId, t.loadError]);
 
   const headerTitle = useMemo(() => {
-    const base = subregionName ? `${regionName} / ${subregionName}` : regionName;
-    return presetId ? `${base} (${t.presetApplied})` : base;
-  }, [presetId, regionName, subregionName, t.presetApplied]);
+    return presetId ? `${regionName} (${t.presetApplied})` : regionName;
+  }, [presetId, regionName, t.presetApplied]);
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">

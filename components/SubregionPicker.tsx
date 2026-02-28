@@ -6,6 +6,7 @@ type Props = {
   locale: "en" | "ko";
   subregions: Subregion[];
   selectedSubregionId?: string;
+  allowClear?: boolean;
   onSelectSubregion: (subregionId: string | undefined) => void;
 };
 
@@ -13,6 +14,7 @@ export function SubregionPicker({
   locale,
   subregions,
   selectedSubregionId,
+  allowClear = false,
   onSelectSubregion
 }: Props) {
   if (!subregions.length) return null;
@@ -23,13 +25,15 @@ export function SubregionPicker({
         <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-600">
           {locale === "ko" ? "시/군/구 드릴다운" : "City/County Drill-down"}
         </h2>
-        <button
-          type="button"
-          className="text-xs text-slate-500 underline"
-          onClick={() => onSelectSubregion(undefined)}
-        >
-          {locale === "ko" ? "전체 보기" : "Clear"}
-        </button>
+        {allowClear ? (
+          <button
+            type="button"
+            className="text-xs text-slate-500 underline"
+            onClick={() => onSelectSubregion(undefined)}
+          >
+            {locale === "ko" ? "전체 보기" : "Clear"}
+          </button>
+        ) : null}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         {subregions.map((item) => {
