@@ -17,6 +17,20 @@ type Props = {
 
 const REGION_SOURCE_ID = "korea-regions";
 const SUBREGION_SOURCE_ID = "korea-subregions";
+const CITY_REGION_LAYER_ID = "city-region-fill";
+const SUBREGION_LAYER_ID = "subregion-fill";
+
+const CITY_LEVEL_REGION_IDS = new Set([
+  "seoul",
+  "incheon",
+  "daejeon",
+  "daegu",
+  "gwangju",
+  "busan",
+  "ulsan",
+  "sejong",
+  "jeju"
+]);
 
 function flattenCoords(coords: unknown, out: [number, number][]) {
   if (!Array.isArray(coords)) return;
@@ -61,6 +75,16 @@ export function RegionMap({
     return Object.fromEntries(features.map((feature) => [feature.properties.region_id, feature]));
   }, []);
 
+  const cityOnlyRegionGeoJson = useMemo(() => {
+    const features = regionGeoJson.features.filter((feature) =>
+      CITY_LEVEL_REGION_IDS.has(feature.properties.region_id)
+    );
+    return {
+      type: "FeatureCollection",
+      features
+    } as GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon, RegionFeatureProperties>;
+  }, []);
+
   const featureBySubregion = useMemo(() => {
     const features = subregionGeoJson.features as GeoJSON.Feature<
       GeoJSON.Polygon | GeoJSON.MultiPolygon,
@@ -91,7 +115,7 @@ export function RegionMap({
     map.on("load", () => {
       map.addSource(REGION_SOURCE_ID, {
         type: "geojson",
-        data: regionGeoJson as GeoJSON.FeatureCollection
+        data: cityOnlyRegionGeoJson as GeoJSON.FeatureCollection
       });
 
       map.addSource(SUBREGION_SOURCE_ID, {
@@ -100,7 +124,7 @@ export function RegionMap({
       });
 
       map.addLayer({
-        id: "region-fill",
+        id: CITY_REGION_LAYER_ID,
         type: "fill",
         source: REGION_SOURCE_ID,
         paint: {
@@ -110,18 +134,17 @@ export function RegionMap({
       });
 
       map.addLayer({
-        id: "subregion-fill",
+        id: SUBREGION_LAYER_ID,
         type: "fill",
         source: SUBREGION_SOURCE_ID,
-        filter: ["==", ["get", "parent_region_id"], selectedRegionId],
         paint: {
           "fill-color": ["case", ["==", ["get", "subregion_id"], selectedSubregionId ?? ""], "#4338ca", "#6366f1"],
-          "fill-opacity": ["case", ["==", ["get", "subregion_id"], selectedSubregionId ?? ""], 0.65, 0.35]
+          "fill-opacity": ["case", ["==", ["get", "subregion_id"], selectedSubregionId ?? ""], 0.72, 0.32]
         }
       });
 
       map.addLayer({
-        id: "region-line",
+        id: "city-region-line",
         type: "line",
         source: REGION_SOURCE_ID,
         paint: {
@@ -134,39 +157,40 @@ export function RegionMap({
         id: "subregion-line",
         type: "line",
         source: SUBREGION_SOURCE_ID,
-        filter: ["==", ["get", "parent_region_id"], selectedRegionId],
         paint: {
           "line-color": "#312e81",
           "line-width": 1
         }
       });
 
-      map.on("mousemove", "region-fill", (event) => {
+      map.on("mousemove", CITY_REGION_LAYER_ID, (event) => {
         if (event.features?.[0]) map.getCanvas().style.cursor = "pointer";
       });
 
-      map.on("mousemove", "subregion-fill", (event) => {
+      map.on("mousemove", SUBREGION_LAYER_ID, (event) => {
         if (event.features?.[0]) map.getCanvas().style.cursor = "pointer";
       });
 
-      map.on("mouseleave", "region-fill", () => {
+      map.on("mouseleave", CITY_REGION_LAYER_ID, () => {
         map.getCanvas().style.cursor = "";
       });
 
-      map.on("mouseleave", "subregion-fill", () => {
+      map.on("mouseleave", SUBREGION_LAYER_ID, () => {
         map.getCanvas().style.cursor = "";
       });
 
-      map.on("click", "region-fill", (event) => {
+      map.on("click", CITY_REGION_LAYER_ID, (event) => {
         const feature = event.features?.[0];
         if (!feature) return;
         onSelectRegion((feature.properties as RegionFeatureProperties).region_id);
       });
 
-      map.on("click", "subregion-fill", (event) => {
+      map.on("click", SUBREGION_LAYER_ID, (event) => {
         const feature = event.features?.[0];
         if (!feature) return;
-        onSelectSubregion((feature.properties as SubregionFeatureProperties).subregion_id);
+        const properties = feature.properties as SubregionFeatureProperties;
+        onSelectRegion(properties.parent_region_id);
+        onSelectSubregion(properties.subregion_id);
       });
     });
 
@@ -174,39 +198,37 @@ export function RegionMap({
       map.remove();
       mapRef.current = null;
     };
-  }, [mapboxToken, onSelectRegion, onSelectSubregion, selectedRegionId, selectedSubregionId]);
+  }, [cityOnlyRegionGeoJson, mapboxToken, onSelectRegion, onSelectSubregion, selectedRegionId, selectedSubregionId]);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.getSource(REGION_SOURCE_ID) || !map.getSource(SUBREGION_SOURCE_ID)) return;
 
-    map.setPaintProperty("region-fill", "fill-color", [
+    map.setPaintProperty(CITY_REGION_LAYER_ID, "fill-color", [
       "case",
       ["==", ["get", "region_id"], selectedRegionId],
       "#0f766e",
       "#94a3b8"
     ]);
-    map.setPaintProperty("region-fill", "fill-opacity", [
+    map.setPaintProperty(CITY_REGION_LAYER_ID, "fill-opacity", [
       "case",
       ["==", ["get", "region_id"], selectedRegionId],
       0.7,
       0.35
     ]);
 
-    map.setFilter("subregion-fill", ["==", ["get", "parent_region_id"], selectedRegionId]);
-    map.setFilter("subregion-line", ["==", ["get", "parent_region_id"], selectedRegionId]);
-    map.setPaintProperty("subregion-fill", "fill-color", [
+    map.setPaintProperty(SUBREGION_LAYER_ID, "fill-color", [
       "case",
       ["==", ["get", "subregion_id"], selectedSubregionId ?? ""],
       "#4338ca",
       "#6366f1"
     ]);
 
-    map.setPaintProperty("subregion-fill", "fill-opacity", [
+    map.setPaintProperty(SUBREGION_LAYER_ID, "fill-opacity", [
       "case",
       ["==", ["get", "subregion_id"], selectedSubregionId ?? ""],
-      0.65,
-      0.35
+      0.72,
+      0.32
     ]);
 
     if (selectedSubregionId && featureBySubregion[selectedSubregionId]) {

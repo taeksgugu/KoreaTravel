@@ -54,7 +54,7 @@ export function MainExplorer({ locale }: Props) {
         <div className="mb-2 flex items-end justify-between">
           <div>
             <h2 className="text-4xl font-extrabold text-slate-900">{locale === "ko" ? "지역 탐색" : "Explore Regions"}</h2>
-            <p className="text-slate-500">{locale === "ko" ? "지도를 탭해 상세정보 보기" : "Tap a province to discover more"}</p>
+            <p className="text-slate-500">{locale === "ko" ? "도시/시군구를 탭해 상세정보 보기" : "Tap a city to discover more"}</p>
           </div>
         </div>
       </section>
