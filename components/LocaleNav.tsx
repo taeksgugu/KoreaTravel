@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -6,7 +6,7 @@ import type { Locale } from "@/lib/i18n";
 
 export function LocaleNav({ locale }: { locale: Locale }) {
   const pathname = usePathname();
-  const labels = {
+  const labels: Record<Locale, { explore: string; drama: string; restaurants: string; quiz: string; home: string }> = {
     en: {
       explore: "Explore Korea",
       drama: "K-Drama Travel",
@@ -15,13 +15,13 @@ export function LocaleNav({ locale }: { locale: Locale }) {
       home: "K-Journey Guide"
     },
     ko: {
-      explore: "한국 지역 탐색",
-      drama: "K-드라마 여행",
-      restaurants: "K-푸드 가이드",
-      quiz: "여행 퀴즈",
-      home: "K-저니 가이드"
+      explore: "Explore Korea",
+      drama: "K-Drama Travel",
+      restaurants: "K-Food Guide",
+      quiz: "Travel Quiz",
+      home: "K-Journey Guide"
     }
-  } as const;
+  };
 
   const pageTitle = pathname.includes("/explore")
     ? labels[locale].explore
@@ -47,12 +47,9 @@ export function LocaleNav({ locale }: { locale: Locale }) {
             {pageTitle}
           </Link>
         </div>
-        <Link
-          href={locale === "en" ? "/ko" : "/en"}
-          className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700"
-        >
-          {locale === "en" ? "KO" : "EN"}
-        </Link>
+        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+          EN
+        </span>
       </div>
     </nav>
   );

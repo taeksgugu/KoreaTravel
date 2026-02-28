@@ -48,6 +48,17 @@ export type RegionItemsResponse = {
   pageSize: number;
   hasMore: boolean;
   debug?: string;
+  diagnostics?: {
+    requestedRegionId: string;
+    normalizedRegionId: string;
+    resolvedAdminCode: string | null;
+    resolvedAreaCode: string | null;
+    resolvedSigunguCode: string | null;
+    sourceEndpoint: string | null;
+    cacheKey: string;
+    cacheHit: boolean;
+    apiRevision: string;
+  };
   items: NormalizedItem[];
 };
 

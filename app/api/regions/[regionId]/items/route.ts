@@ -12,8 +12,14 @@ import type { Category, EventStatus, NormalizedItem, RegionItemsResponse } from 
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const validCategories: Category[] = ["attractions", "food", "stay", "events"];
 const API_REVISION = "api-rev-2026-02-28-01";
+const DEPLOY_REVISION =
+  process.env.CF_PAGES_COMMIT_SHA ||
+  process.env.GITHUB_SHA ||
+  process.env.VERCEL_GIT_COMMIT_SHA ||
+  "local";
 const GEMINI_MODEL = "gemini-1.5-flash";
 const MIN_FALLBACK_ITEMS = 6;
+const API_CACHE_CONTROL = "no-store";
 const GEMINI_SYSTEM_PROMPT =
   "너는 한국의 매력을 서구권 여행자에게 알리는 전문 에디터야. 제공되는 한국어 관광 정보를 바탕으로 (1) 매력적인 영문 제목, (2) 서양인의 관점에서 흥미로운 역사/문화적 맥락이 포함된 3~4문장의 영문 설명을 작성해줘. 말투는 Vibrant & Welcoming 톤이어야 해.";
 
@@ -147,8 +153,7 @@ export async function GET(
   const eventStatus = (searchParams.get("eventStatus") ?? "all") as EventStatus;
   const presetId = searchParams.get("presetId") ?? undefined;
   const subregionId = searchParams.get("subregionId") ?? undefined;
-  const localeParam = searchParams.get("locale") ?? searchParams.get("lang") ?? "en";
-  const locale = localeParam === "ko" ? "ko" : "en";
+  const locale = "en";
 
   if (!validCategories.includes(category)) {
     return NextResponse.json({ error: "Invalid category" }, { status: 400 });
@@ -172,8 +177,9 @@ export async function GET(
   }
 
   const cacheKey = [
+    DEPLOY_REVISION,
+    API_REVISION,
     normalizedRegionId,
-    locale,
     subregionId ?? "none",
     category,
     page,
@@ -183,15 +189,29 @@ export async function GET(
     presetId ?? "none"
   ].join(":");
   const cached = getCache<RegionItemsResponse>(cacheKey);
-  if (cached) {
-    return NextResponse.json(cached, {
+  if (cached && cached.regionId === normalizedRegionId) {
+    const cachedPayload: RegionItemsResponse = {
+      ...cached,
+      diagnostics: {
+        requestedRegionId: regionId,
+        normalizedRegionId,
+        resolvedAdminCode: cached.diagnostics?.resolvedAdminCode ?? regionById[normalizedRegionId]?.admin_code ?? null,
+        resolvedAreaCode: cached.diagnostics?.resolvedAreaCode ?? null,
+        resolvedSigunguCode: cached.diagnostics?.resolvedSigunguCode ?? null,
+        sourceEndpoint: cached.diagnostics?.sourceEndpoint ?? null,
+        cacheKey,
+        cacheHit: true,
+        apiRevision: API_REVISION
+      }
+    };
+    return NextResponse.json(cachedPayload, {
       headers: {
-        "Cache-Control": "public, s-maxage=900, stale-while-revalidate=600"
+        "Cache-Control": API_CACHE_CONTROL
       }
     });
   }
 
-  const { items, hasMore, debug } = await fetchRegionItems({
+  const { items, hasMore, debug, diagnostics } = await fetchRegionItems({
     regionId: normalizedRegionId,
     subregionId,
     category,
@@ -234,6 +254,17 @@ export async function GET(
     debug: debug
       ? `${debug}${shouldGuardWithMock ? "|guard:empty_items_replaced" : ""}|${API_REVISION}`
       : `${shouldGuardWithMock ? "guard:empty_items_replaced|" : ""}${API_REVISION}`,
+    diagnostics: {
+      requestedRegionId: regionId,
+      normalizedRegionId,
+      resolvedAdminCode: diagnostics.resolvedAdminCode,
+      resolvedAreaCode: diagnostics.resolvedAreaCode,
+      resolvedSigunguCode: diagnostics.resolvedSigunguCode,
+      sourceEndpoint: diagnostics.sourceEndpoint,
+      cacheKey,
+      cacheHit: false,
+      apiRevision: API_REVISION
+    },
     items: enrichedItems
   };
 
@@ -247,9 +278,7 @@ export async function GET(
 
   return NextResponse.json(payload, {
     headers: {
-      "Cache-Control": isMockResponse
-        ? "no-store"
-        : "public, s-maxage=900, stale-while-revalidate=600"
+      "Cache-Control": API_CACHE_CONTROL
     }
   });
 }

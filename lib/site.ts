@@ -1,4 +1,4 @@
-function stripTrailingSlash(value: string): string {
+﻿function stripTrailingSlash(value: string): string {
   return value.replace(/\/+$/, "");
 }
 
@@ -16,5 +16,4 @@ export const siteConfig = {
   siteUrl: getBaseUrl()
 };
 
-export const supportedLocales = ["en", "ko"] as const;
-
+export const supportedLocales = ["en"] as const;

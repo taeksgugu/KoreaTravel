@@ -12,11 +12,8 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: [
           "/en/details",
-          "/ko/details",
           "/en/result",
-          "/ko/result",
-          "/en/quiz",
-          "/ko/quiz"
+          "/en/quiz"
         ]
       }
     ],

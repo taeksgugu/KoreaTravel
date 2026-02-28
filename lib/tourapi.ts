@@ -22,6 +22,12 @@ type FetchResult = {
   hasMore: boolean;
   source: "tourapi" | "mock" | "public-festival";
   debug?: string;
+  diagnostics: {
+    resolvedAdminCode: string | null;
+    resolvedAreaCode: string | null;
+    resolvedSigunguCode: string | null;
+    sourceEndpoint: string | null;
+  };
 };
 
 const MIN_FALLBACK_ITEMS = 6;
@@ -212,7 +218,11 @@ async function callTourApi(endpoint: string, params: URLSearchParams, bases: str
           continue;
         }
 
-        return { items, totalCount };
+        return {
+          items,
+          totalCount,
+          sourceEndpoint: `${base}/${endpoint}`
+        };
       }
     }
   }
@@ -258,7 +268,13 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
           : mock.items,
       hasMore: mock.hasMore,
       source: "mock",
-      debug: "mock_reason:unknown_region"
+      debug: "mock_reason:unknown_region",
+      diagnostics: {
+        resolvedAdminCode: null,
+        resolvedAreaCode: null,
+        resolvedSigunguCode: null,
+        sourceEndpoint: null
+      }
     };
   }
 
@@ -272,7 +288,13 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
           : mock.items,
       hasMore: mock.hasMore,
       source: "mock",
-      debug: "mock_reason:missing_tour_api_key"
+      debug: "mock_reason:missing_tour_api_key",
+      diagnostics: {
+        resolvedAdminCode: region.admin_code ?? null,
+        resolvedAreaCode: areaCodeByRegion[normalizedRegionId] ?? null,
+        resolvedSigunguCode: null,
+        sourceEndpoint: null
+      }
     };
   }
 
@@ -299,7 +321,13 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
           items: filteredFestival,
           hasMore: festivalFallback.length >= options.pageSize,
           source: "public-festival",
-          debug: "source:public_festival_fallback"
+          debug: "source:public_festival_fallback",
+          diagnostics: {
+            resolvedAdminCode: lDongRegnCd ?? null,
+            resolvedAreaCode: areaCode ?? null,
+            resolvedSigunguCode: sigunguCode ?? null,
+            sourceEndpoint: process.env.PUBLIC_FESTIVAL_API_ENDPOINT ?? null
+          }
         };
       }
     }
@@ -325,7 +353,11 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
       params.set("keyword", subregion?.keywordKo ?? preset?.keywordKo ?? region.name_ko);
     }
 
-    let resolved: { items: Record<string, unknown>[]; totalCount: number } | null = null;
+    let resolved: {
+      items: Record<string, unknown>[];
+      totalCount: number;
+      sourceEndpoint: string;
+    } | null = null;
     let usedContentTypeId: string | null = null;
     let lastCallError: unknown = null;
 
@@ -362,7 +394,13 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
             : fallback.items,
         hasMore: fallback.hasMore,
         source: "mock",
-        debug: "mock_reason:tourapi_empty_payload_fallback"
+        debug: "mock_reason:tourapi_empty_payload_fallback",
+        diagnostics: {
+          resolvedAdminCode: lDongRegnCd ?? null,
+          resolvedAreaCode: areaCode ?? null,
+          resolvedSigunguCode: sigunguCode ?? null,
+          sourceEndpoint: resolved.sourceEndpoint
+        }
       };
     }
 
@@ -372,7 +410,13 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
       items: filtered,
       hasMore,
       source: "tourapi",
-      debug: `source:tourapi:${endpoint}:ct=${usedContentTypeId ?? "none"}:${lDongRegnCd ?? "none"}:${lDongSignguCd ?? "none"}:${areaCode ?? "none"}:${sigunguCode ?? "none"}`
+      debug: `source:tourapi:${endpoint}:ct=${usedContentTypeId ?? "none"}:${lDongRegnCd ?? "none"}:${lDongSignguCd ?? "none"}:${areaCode ?? "none"}:${sigunguCode ?? "none"}`,
+      diagnostics: {
+        resolvedAdminCode: lDongRegnCd ?? null,
+        resolvedAreaCode: areaCode ?? null,
+        resolvedSigunguCode: sigunguCode ?? null,
+        sourceEndpoint: resolved.sourceEndpoint
+      }
     };
   } catch (error) {
     const errorMessage =
@@ -385,7 +429,13 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
           : mock.items,
       hasMore: mock.hasMore,
       source: "mock",
-      debug: `mock_reason:tourapi_request_failed:${errorMessage}`
+      debug: `mock_reason:tourapi_request_failed:${errorMessage}`,
+      diagnostics: {
+        resolvedAdminCode: lDongRegnCd ?? null,
+        resolvedAreaCode: areaCode ?? null,
+        resolvedSigunguCode: sigunguCode ?? null,
+        sourceEndpoint: null
+      }
     };
   }
 }

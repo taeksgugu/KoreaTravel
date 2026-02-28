@@ -6,7 +6,7 @@ import { isLocale } from "@/lib/i18n";
 import { siteConfig, supportedLocales } from "@/lib/site";
 
 export function generateStaticParams() {
-  return ["en", "ko"].flatMap((locale) =>
+  return supportedLocales.flatMap((locale) =>
     Object.keys(citiesBySlug).map((slug) => ({ locale, slug }))
   );
 }
