@@ -70,8 +70,8 @@ async function run() {
   }
 
   const koResponse = await fetch(`${baseUrl}/ko/explore`, { redirect: "manual" });
-  assert([301, 302, 307, 308].includes(koResponse.status), `/ko/explore should redirect, got ${koResponse.status}`);
-  console.log(`[ok] /ko/explore redirects with ${koResponse.status}`);
+  assert(koResponse.status === 404, `/ko/explore should be hidden (404), got ${koResponse.status}`);
+  console.log(`[ok] /ko/explore hidden with ${koResponse.status}`);
 
   await checkRegion("seoul");
   await checkRegion("jeju");
