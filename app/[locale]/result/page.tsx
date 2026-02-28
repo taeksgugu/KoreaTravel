@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { isLocale } from "@/lib/i18n";
 import { siteConfig, supportedLocales } from "@/lib/site";
 import { ResultClient } from "./ResultClient";
+import { ResultFallbackPanel } from "./ResultFallbackPanel";
 
 export async function generateMetadata({
   params
@@ -61,5 +62,14 @@ export default async function ResultPage({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  return <ResultClient locale={locale} />;
+  return (
+    <>
+      <ResultClient locale={locale} />
+      <noscript>
+        <div className="mt-4">
+          <ResultFallbackPanel locale={locale} />
+        </div>
+      </noscript>
+    </>
+  );
 }

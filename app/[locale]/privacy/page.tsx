@@ -26,6 +26,20 @@ export default async function PrivacyPage({
         Third-party services, including analytics and advertising platforms, may use cookies or similar technologies
         according to their own policies.
       </p>
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <h2 className="text-lg font-semibold text-slate-900">Advertising and Cookies (Google AdSense)</h2>
+        <ul className="mt-2 list-disc space-y-2 pl-5 text-slate-700">
+          <li>
+            Third-party vendors, including Google, use cookies based on prior visits to this website or other websites.
+          </li>
+          <li>
+            Google advertising cookies enable Google and its partners to serve ads to users based on their visits to this site and/or other sites on the Internet.
+          </li>
+          <li>
+            Users can opt out of personalized advertising by visiting Google Ad Settings.
+          </li>
+        </ul>
+      </div>
       <p className="text-slate-700">
         You can request privacy inquiries via hello@visitkoreaguide.org.
       </p>

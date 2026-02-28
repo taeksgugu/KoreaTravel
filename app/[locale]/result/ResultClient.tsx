@@ -8,6 +8,7 @@ import { KoreaMap } from "@/components/KoreaMap";
 import { ResultMapbox } from "@/components/ResultMapbox";
 import { citiesBySlug } from "@/lib/data/cities";
 import type { RecommendationInput, RecommendationResult, CitySlug, UnsplashPhoto } from "@/lib/data/types";
+import { ResultFallbackPanel } from "./ResultFallbackPanel";
 
 const QUIZ_STORAGE_KEY = "koreatravel_quiz";
 const DETAIL_STORAGE_KEY = "koreatravel_details";
@@ -18,21 +19,39 @@ export function ResultClient({ locale }: { locale: string }) {
   const router = useRouter();
   const [results, setResults] = useState<RecommendationResult[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [hoveredSlug, setHoveredSlug] = useState<CitySlug | null>(null);
   const [imageMap, setImageMap] = useState<Record<string, UnsplashPhoto[]>>({});
 
   useEffect(() => {
     async function runRecommendation() {
-      const quizRaw = localStorage.getItem(QUIZ_STORAGE_KEY);
-      const detailRaw = localStorage.getItem(DETAIL_STORAGE_KEY);
-
-      if (!quizRaw || !detailRaw) {
-        router.replace(`/${locale}/quiz`);
+      let quizRaw: string | null = null;
+      let detailRaw: string | null = null;
+      try {
+        quizRaw = localStorage.getItem(QUIZ_STORAGE_KEY);
+        detailRaw = localStorage.getItem(DETAIL_STORAGE_KEY);
+      } catch {
+        setLoadFailed(true);
+        setLoading(false);
         return;
       }
 
-      const quiz = JSON.parse(quizRaw) as { selectedOptionIds: string[] };
-      const details = JSON.parse(detailRaw) as Omit<RecommendationInput, "selectedOptionIds">;
+      if (!quizRaw || !detailRaw) {
+        setLoadFailed(true);
+        setLoading(false);
+        return;
+      }
+
+      let quiz: { selectedOptionIds: string[] };
+      let details: Omit<RecommendationInput, "selectedOptionIds">;
+      try {
+        quiz = JSON.parse(quizRaw) as { selectedOptionIds: string[] };
+        details = JSON.parse(detailRaw) as Omit<RecommendationInput, "selectedOptionIds">;
+      } catch {
+        setLoadFailed(true);
+        setLoading(false);
+        return;
+      }
       const payload: RecommendationInput = {
         selectedOptionIds: quiz.selectedOptionIds,
         ...details
@@ -45,11 +64,19 @@ export function ResultClient({ locale }: { locale: string }) {
       }).catch(() => null);
 
       if (!response?.ok) {
+        setLoadFailed(true);
         setLoading(false);
         return;
       }
 
       const data = (await response.json()) as { results: RecommendationResult[] };
+      if (!data.results?.length) {
+        setLoadFailed(true);
+        setLoading(false);
+        return;
+      }
+
+      setLoadFailed(false);
       setResults(data.results ?? []);
       setHoveredSlug(data.results?.[0]?.slug ?? null);
       setLoading(false);
@@ -96,8 +123,8 @@ export function ResultClient({ locale }: { locale: string }) {
     return <div className="rounded-2xl border border-slate-200 bg-white p-6">Calculating your top Korean cities...</div>;
   }
 
-  if (!results.length) {
-    return <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-800">Could not generate recommendations. Please retake the quiz.</div>;
+  if (loadFailed || !results.length) {
+    return <ResultFallbackPanel locale={locale} />;
   }
 
   return (
