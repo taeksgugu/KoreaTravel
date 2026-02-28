@@ -176,9 +176,15 @@ export function RegionContentPanel({
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {items.map((item) => (
           <article key={item.id} className="rounded-2xl border border-slate-200 p-4">
-            <h3 className="text-base font-semibold text-slate-900">{item.title}</h3>
+            <h3 className="text-base font-semibold text-slate-900">
+              {locale === "en" ? item.enTitle ?? item.title : item.title}
+            </h3>
             <p className="mt-1 text-sm text-slate-600">{item.addr || t.addressUnavailable}</p>
-            {item.overview ? <p className="mt-2 line-clamp-3 text-sm text-slate-700">{item.overview}</p> : null}
+            {(locale === "en" ? item.enDescription ?? item.overview : item.overview) ? (
+              <p className="mt-2 line-clamp-3 text-sm text-slate-700">
+                {locale === "en" ? item.enDescription ?? item.overview : item.overview}
+              </p>
+            ) : null}
             {item.startDate ? (
               <p className="mt-2 text-xs text-slate-500">
                 {item.startDate} {item.endDate ? `~ ${item.endDate}` : ""}
@@ -186,12 +192,25 @@ export function RegionContentPanel({
             ) : null}
             <div className="mt-3 flex flex-wrap gap-2">
               <a
-                href={`https://www.google.com/maps/search/${encodeURIComponent(item.addr ? `${item.title} ${item.addr}` : item.title)}`}
+                href={
+                  item.googleMapsUrl ??
+                  `https://www.google.com/maps/search/${encodeURIComponent(item.addr ? `${item.title} ${item.addr}` : item.title)}`
+                }
                 target="_blank"
                 rel="noreferrer"
                 className="rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
               >
                 {t.openInGoogleMaps}
+              </a>
+              <a
+                href={`https://english.visitkorea.or.kr/svc/search/search.do?keyword=${encodeURIComponent(
+                  `${item.title} ${item.addr}`.trim()
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
+              >
+                {t.visitKoreaSearch}
               </a>
             </div>
           </article>

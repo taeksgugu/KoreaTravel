@@ -80,11 +80,13 @@ Required:
 - `TOUR_PHOTO_API_KEY` (or reuse `TOUR_API_KEY` if photo API is approved on same key)
 
 Optional:
+- `BASE_URL` (absolute canonical base, e.g. `https://visitkoreaguide.org`)
 - `PUBLIC_DATA_API_KEY`
 - `PUBLIC_FESTIVAL_API_ENDPOINT`
 - `NEXT_PUBLIC_CONTACT_EMAIL`
 - `NEXT_PUBLIC_ADSENSE_CLIENT`
 - `ADS_TXT_CONTENT`
+- `GEMINI_API_KEY`
 
 If `TOUR_API_KEY` is missing, API falls back to mock content.
 
@@ -127,6 +129,20 @@ Build:
 
 ```bash
 npm run build
+```
+
+Endpoint verification (requires `npm run dev` on default port or pass URL):
+
+```bash
+npm run verify:endpoints
+```
+
+Fallback verification (forces upstream failure and checks mock >= 6):
+
+```bash
+TOUR_API_BASE_URL=https://127.0.0.1:1 npm run dev
+# new terminal
+VERIFY_EXPECT_FALLBACK=1 node scripts/verify-endpoints.mjs http://localhost:3000
 ```
 
 Cloudflare build:

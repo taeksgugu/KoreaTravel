@@ -1,9 +1,10 @@
 ﻿import type { Metadata } from "next";
 import Script from "next/script";
+import { getBaseUrl } from "@/lib/site";
 import "./globals.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://visitkoreaguide.org";
+const siteUrl = getBaseUrl();
 const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-3946429838788366";
 const hasAdsenseClient = adsenseClient.startsWith("ca-pub-");
 const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "hello@visitkoreaguide.org";
@@ -68,3 +69,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+

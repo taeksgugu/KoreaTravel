@@ -1,5 +1,6 @@
 ﻿import { createMockItems } from "./mock-data";
 import { presetById } from "./presets";
+import { normalizeRegionId } from "./region-id";
 import { regionById } from "./regions";
 import { subregionById } from "./subregions";
 import type { Category, EventStatus, NormalizedItem } from "./types";
@@ -22,6 +23,8 @@ type FetchResult = {
   source: "tourapi" | "mock" | "public-festival";
   debug?: string;
 };
+
+const MIN_FALLBACK_ITEMS = 6;
 
 function parseYmd(value: string | null): Date | null {
   if (!value) return null;
@@ -243,9 +246,11 @@ async function fetchPublicFestival(options: FetchOptions): Promise<NormalizedIte
 }
 
 export async function fetchRegionItems(options: FetchOptions): Promise<FetchResult> {
-  const region = regionById[options.regionId];
+  const normalizedRegionId = normalizeRegionId(options.regionId);
+  const fallbackPageSize = Math.max(options.pageSize, MIN_FALLBACK_ITEMS);
+  const region = regionById[normalizedRegionId];
   if (!region) {
-    const mock = createMockItems(options.regionId, options.category, options.page, options.pageSize);
+    const mock = createMockItems(normalizedRegionId || options.regionId, options.category, options.page, fallbackPageSize);
     return {
       items:
         options.category === "events"
@@ -259,7 +264,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
 
   const tourApiKey = resolveTourApiKey();
   if (!tourApiKey) {
-    const mock = createMockItems(region.name_en, options.category, options.page, options.pageSize);
+    const mock = createMockItems(normalizedRegionId, options.category, options.page, fallbackPageSize);
     return {
       items:
         options.category === "events"
@@ -277,7 +282,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
   const rawSignguCode = subregion?.sigunguCode ?? preset?.sigunguCode;
   const lDongSignguCd =
     rawSignguCode && /^\d{3}$/.test(rawSignguCode) ? rawSignguCode : undefined;
-  const areaCode = subregion?.areaCode ?? preset?.areaCode ?? areaCodeByRegion[options.regionId];
+  const areaCode = subregion?.areaCode ?? preset?.areaCode ?? areaCodeByRegion[normalizedRegionId];
   const sigunguCode = rawSignguCode;
   const arrange = options.sort === "latest" ? "C" : "A";
   const tourApiBases = getTourApiBaseCandidates(options.locale);
@@ -318,7 +323,6 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
 
     if (endpoint === "searchKeyword2") {
       params.set("keyword", subregion?.keywordKo ?? preset?.keywordKo ?? region.name_ko);
-    } else {
     }
 
     let resolved: { items: Record<string, unknown>[]; totalCount: number } | null = null;
@@ -350,7 +354,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
         : normalized;
 
     if (filtered.length === 0) {
-      const fallback = createMockItems(region.name_en, options.category, options.page, options.pageSize);
+      const fallback = createMockItems(normalizedRegionId, options.category, options.page, fallbackPageSize);
       return {
         items:
           options.category === "events"
@@ -373,7 +377,7 @@ export async function fetchRegionItems(options: FetchOptions): Promise<FetchResu
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message.slice(0, 220) : "unknown_tourapi_error";
-    const mock = createMockItems(region.name_en, options.category, options.page, options.pageSize);
+    const mock = createMockItems(normalizedRegionId, options.category, options.page, fallbackPageSize);
     return {
       items:
         options.category === "events"

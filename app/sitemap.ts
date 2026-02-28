@@ -1,8 +1,9 @@
 ﻿import type { MetadataRoute } from "next";
 import { cities } from "@/lib/data/cities";
+import { getBaseUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://visitkoreaguide.org";
+  const base = getBaseUrl();
   const now = new Date();
   const locales = ["en", "ko"];
   const routes = [
@@ -42,3 +43,4 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [...localeRoutes, ...cityRoutes, ...regionLandingRoutes];
 }
+

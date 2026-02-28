@@ -1,7 +1,8 @@
 ﻿import type { MetadataRoute } from "next";
+import { getBaseUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://visitkoreaguide.org";
+  const base = getBaseUrl();
   const host = new URL(base).host;
 
   return {

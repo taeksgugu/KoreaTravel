@@ -6,15 +6,32 @@ import type { Locale } from "@/lib/i18n";
 
 export function LocaleNav({ locale }: { locale: Locale }) {
   const pathname = usePathname();
+  const labels = {
+    en: {
+      explore: "Explore Korea",
+      drama: "K-Drama Travel",
+      restaurants: "K-Food Guide",
+      quiz: "Travel Quiz",
+      home: "K-Journey Guide"
+    },
+    ko: {
+      explore: "한국 지역 탐색",
+      drama: "K-드라마 여행",
+      restaurants: "K-푸드 가이드",
+      quiz: "여행 퀴즈",
+      home: "K-저니 가이드"
+    }
+  } as const;
+
   const pageTitle = pathname.includes("/explore")
-    ? "Explore Korea"
+    ? labels[locale].explore
     : pathname.includes("/drama")
-      ? "K-Drama Travel"
+      ? labels[locale].drama
       : pathname.includes("/restaurants")
-        ? "K-Food Guide"
+        ? labels[locale].restaurants
         : pathname.includes("/quiz")
-          ? "Travel Quiz"
-          : "K-Journey Guide";
+          ? labels[locale].quiz
+          : labels[locale].home;
 
   return (
     <nav className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">

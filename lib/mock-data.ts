@@ -8,6 +8,11 @@ const categoryLabel: Record<Category, string> = {
 };
 
 export function createMockItems(regionLabel: string, category: Category, page: number, pageSize: number): { items: NormalizedItem[]; hasMore: boolean } {
+  const normalizedRegionLabel = regionLabel
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
   const start = (page - 1) * pageSize;
   const total = 36;
   const end = Math.min(start + pageSize, total);
@@ -18,14 +23,14 @@ export function createMockItems(regionLabel: string, category: Category, page: n
     const eventEnd = `2026-0${((order % 6) + 3).toString()}-1${((order % 8) + 1).toString()}`;
     return {
       id: `mock-${regionLabel}-${category}-${order}`,
-      title: `${regionLabel} ${categoryLabel[category]} ${order}`,
+      title: `${normalizedRegionLabel} ${categoryLabel[category]} ${order}`,
       category,
-      addr: `${regionLabel} sample address ${order}`,
+      addr: `${normalizedRegionLabel} sample address ${order}`,
       mapx: 127.0 + (order % 10) * 0.01,
       mapy: 37.0 + (order % 10) * 0.01,
       firstImage: null,
       tel: null,
-      overview: `Mock content for ${regionLabel} ${category} #${order}. Configure TOUR_API_KEY to use live data.`,
+      overview: `Mock content for ${normalizedRegionLabel} ${category} #${order}. Configure TOUR_API_KEY to use live data.`,
       startDate: category === "events" ? eventStart : null,
       endDate: category === "events" ? eventEnd : null,
       source: "mock"

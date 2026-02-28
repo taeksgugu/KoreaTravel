@@ -10,6 +10,8 @@ type Props = {
   locale: "en" | "ko";
 };
 
+type DramaTab = "trending" | "romance" | "thriller" | "fantasy";
+
 function getYouTubeVideoId(url: string): string | null {
   try {
     const parsed = new URL(url);
@@ -27,7 +29,20 @@ function getYouTubeVideoId(url: string): string | null {
   }
 }
 
+function matchesDramaTab(tab: DramaTab, title: string, description: string): boolean {
+  if (tab === "trending") return true;
+  const text = `${title} ${description}`.toLowerCase();
+  if (tab === "romance") {
+    return /romance|love|romantic|bride|couple/.test(text);
+  }
+  if (tab === "thriller") {
+    return /tension|tragedy|challenge|political|officer|legal|courtroom/.test(text);
+  }
+  return /fantasy|goblin|immortal|joseon|prince|palace/.test(text);
+}
+
 export function DramaCards({ locale }: Props) {
+  const [activeTab, setActiveTab] = useState<DramaTab>("trending");
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [activeVideoTitle, setActiveVideoTitle] = useState<string>("");
 
@@ -41,23 +56,35 @@ export function DramaCards({ locale }: Props) {
     []
   );
 
-  const featured = cards.slice(0, 4);
-  const spotlight = cards.slice(0, 6);
+  const filteredCards = useMemo(() => {
+    const matched = cards.filter(({ drama }) =>
+      matchesDramaTab(activeTab, drama.title, drama.description)
+    );
+    return matched.length > 0 ? matched : cards;
+  }, [activeTab, cards]);
+
+  const featured = filteredCards.slice(0, 4);
+  const spotlight = filteredCards.slice(0, 6);
+  const tabs: { id: DramaTab; label: string }[] = [
+    { id: "trending", label: locale === "ko" ? "인기" : "Trending" },
+    { id: "romance", label: locale === "ko" ? "로맨스" : "Romance" },
+    { id: "thriller", label: locale === "ko" ? "스릴러" : "Thriller" },
+    { id: "fantasy", label: locale === "ko" ? "판타지" : "Fantasy" }
+  ];
 
   return (
     <>
       <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
-        {[
-          locale === "ko" ? "인기" : "Trending",
-          locale === "ko" ? "로맨스" : "Romance",
-          locale === "ko" ? "스릴러" : "Thriller",
-          locale === "ko" ? "판타지" : "Fantasy"
-        ].map((tab, idx) => (
+        {tabs.map((tab) => (
           <button
-            key={tab}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold ${idx === 0 ? "bg-blue-700 text-white" : "bg-slate-100 text-slate-600"}`}
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold ${
+              activeTab === tab.id ? "bg-blue-700 text-white" : "bg-slate-100 text-slate-600"
+            }`}
           >
-            {tab}
+            {tab.label}
           </button>
         ))}
       </div>

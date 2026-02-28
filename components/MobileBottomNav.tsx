@@ -48,11 +48,26 @@ function IconFood() {
 
 export function MobileBottomNav({ locale }: { locale: Locale }) {
   const pathname = usePathname();
+  const labels = {
+    en: {
+      home: "Home",
+      explore: "Explore",
+      drama: "Drama",
+      food: "K-Food"
+    },
+    ko: {
+      home: "홈",
+      explore: "탐색",
+      drama: "드라마",
+      food: "맛집"
+    }
+  } as const;
+
   const items: Item[] = [
-    { key: "home", label: "Home", href: `/${locale}`, icon: <IconHome /> },
-    { key: "explore", label: "Explore", href: `/${locale}/explore`, icon: <IconExplore /> },
-    { key: "drama", label: "Drama", href: `/${locale}/drama`, icon: <IconDrama /> },
-    { key: "food", label: "K-Food", href: `/${locale}/restaurants`, icon: <IconFood /> }
+    { key: "home", label: labels[locale].home, href: `/${locale}`, icon: <IconHome /> },
+    { key: "explore", label: labels[locale].explore, href: `/${locale}/explore`, icon: <IconExplore /> },
+    { key: "drama", label: labels[locale].drama, href: `/${locale}/drama`, icon: <IconDrama /> },
+    { key: "food", label: labels[locale].food, href: `/${locale}/restaurants`, icon: <IconFood /> }
   ];
 
   return (
